@@ -62,6 +62,12 @@ class CustomerController extends Controller
     {
         if (\Auth::user()->can('create customer')) {
 
+              // Fix: convert literal "null" string to empty string
+        $request->merge([
+            'billing_state' => $request->billing_state === 'null' ? '' : $request->billing_state,
+            'shipping_state' => $request->shipping_state === 'null' ? '' : $request->shipping_state,
+        ]);
+
             $rules = [
                 'name' => 'required',
                 'contact' => 'required',
