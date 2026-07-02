@@ -1641,6 +1641,97 @@ class ReportController extends Controller
 
     }
 
+    public function cashFlow(Request $request)
+{
+    if(!\Auth::user()->can('cash flow report'))
+    {
+        return redirect()->back()->with('error', __('Permission Denied.'));
+    }
+
+    $start = !empty($request->start_date) ? $request->start_date : date('Y-01-01');
+    $end   = !empty($request->end_date)   ? $request->end_date   : date('Y-12-31');
+    $creatorId = \Auth::user()->creatorId();
+
+    // ===== OPERATING ACTIVITIES =====
+    // Cash IN: Invoices paid (InvoicePayment)
+   $invoiceReceipts = \DB::table('invoice_payments')
+    ->join('invoices', 'invoice_payments.invoice_id', '=', 'invoices.id')
+    ->where('invoices.created_by', $creatorId)
+    ->whereBetween('invoice_payments.date', [$start, $end])
+    ->sum('invoice_payments.amount');
+
+    // Cash IN: Revenue (direct income)
+    $revenueReceipts = \App\Models\Revenue::where('created_by', $creatorId)
+        ->whereBetween('date', [$start, $end])
+        ->sum('amount');
+
+    // Cash OUT: Bills paid (BillPayment)
+  $billPayments = \DB::table('bill_payments')
+    ->join('bills', 'bill_payments.bill_id', '=', 'bills.id')
+    ->where('bills.created_by', $creatorId)
+    ->whereBetween('bill_payments.date', [$start, $end])
+    ->sum('bill_payments.amount');
+
+    // Cash OUT: Payments (expenses)
+    $expensePayments = \App\Models\Payment::where('created_by', $creatorId)
+        ->whereBetween('date', [$start, $end])
+        ->sum('amount');
+
+    $operatingInflow  = $invoiceReceipts + $revenueReceipts;
+    $operatingOutflow = $billPayments + $expensePayments;
+    $operatingNet     = $operatingInflow - $operatingOutflow;
+
+    // ===== INVESTING ACTIVITIES =====
+    // Property Sale (Real Estate Fields sold)
+    $propertySales = \App\Models\RealEstateField::where('created_by', $creatorId)
+        ->where('status', 'sold')
+        ->whereBetween('updated_at', [$start, $end . ' 23:59:59'])
+        ->sum('amount');
+
+    // Plot Sales
+    $plotSales = \App\Models\Plot::where('created_by', $creatorId)
+        ->where('status', 'sold')
+        ->whereBetween('updated_at', [$start, $end . ' 23:59:59'])
+        ->sum('amount');
+
+    // Asset purchases (from assets table)
+   $assetPurchases = 0; 
+
+    $investingInflow  = $propertySales + $plotSales;
+    $investingOutflow = $assetPurchases;
+    $investingNet     = $investingInflow - $investingOutflow;
+
+    // ===== FINANCING ACTIVITIES =====
+    // Bank Transfers (internal — shown for info)
+    $bankTransfersIn  = \App\Models\Transfer::where('created_by', $creatorId)
+        ->whereBetween('date', [$start, $end])
+        ->sum('amount');
+
+    $financingInflow  = $bankTransfersIn;
+    $financingOutflow = 0;
+    $financingNet     = $financingInflow - $financingOutflow;
+
+    // ===== TOTALS =====
+    $netCashChange = $operatingNet + $investingNet + $financingNet;
+
+    $filter = [
+        'start_date' => $start,
+        'end_date'   => $end,
+    ];
+
+    $data = compact(
+        'filter',
+        'invoiceReceipts', 'revenueReceipts', 'billPayments', 'expensePayments',
+        'operatingInflow', 'operatingOutflow', 'operatingNet',
+        'propertySales', 'plotSales', 'assetPurchases',
+        'investingInflow', 'investingOutflow', 'investingNet',
+        'bankTransfersIn', 'financingInflow', 'financingOutflow', 'financingNet',
+        'netCashChange'
+    );
+
+    return view('report.cash_flow', $data);
+}
+
     public function export()
     {
         $name = 'account_statement' . date('Y-m-d i:h:s');

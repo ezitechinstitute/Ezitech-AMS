@@ -775,6 +775,9 @@ Route::group(['middleware' => ['verified']], function () {
             Route::get('report/balance-sheet', [ReportController::class, 'balanceSheet'])->name('report.balance.sheet');
             Route::get('report/ledger', [ReportController::class, 'ledgerSummary'])->name('report.ledger');
             Route::get('report/trial-balance', [ReportController::class, 'trialBalanceSummary'])->name('trial.balance');
+
+            Route::get('report/cash-flow', [ReportController::class, 'cashFlow'])->name('report.cash.flow');
+
         }
     );
     Route::get('/apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon')->middleware(['auth', 'XSS', 'revalidate']);
