@@ -192,6 +192,34 @@
                     @endif
                 @endif
 
+
+                {{---------  Real Estate ------------}}
+@if( Gate::check('manage mouza') || Gate::check('manage plot'))
+<li class="dash-item dash-hasmenu {{ (Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? ' active dash-trigger' : '' }}">
+    <a href="#!" class="dash-link">
+        <span class="dash-micon"><i class="ti ti-home-2"></i></span>
+        <span class="dash-mtext">{{ __('Real Estate') }}</span>
+        <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
+    </a>
+    <ul class="dash-submenu {{ (Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? 'show' : '' }}">
+        @can('manage mouza')
+        <li class="dash-item {{ (Request::segment(1) == 'mouza') ? 'active' : '' }}">
+            <a class="dash-link" href="{{ route('mouza.index') }}">
+                <i class="ti ti-map-pin me-1"></i>{{ __('Agricultural Land') }}
+            </a>
+        </li>
+        @endcan
+        @can('manage plot')
+        <li class="dash-item {{ (Request::segment(1) == 'plot') ? 'active' : '' }}">
+            <a class="dash-link" href="{{ route('plot.index') }}">
+                <i class="ti ti-layout-grid me-1"></i>{{ __('Plots') }}
+            </a>
+        </li>
+        @endcan
+    </ul>
+</li>
+@endif
+
                 {{---------  Product & Service ------------}}
                 @if(Gate::check('manage product & service'))
                     <li class="dash-item {{ (Request::segment(1) == 'productservice')?'active':''}} ">
