@@ -19,6 +19,18 @@
     </div>
 <?php $__env->stopSection(); ?>
 
+<?php $__env->startPush('css-page'); ?>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        #field-map-picker {
+            height: 280px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+    </style>
+<?php $__env->stopPush(); ?>
+
 <?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
@@ -66,6 +78,9 @@
                                         <option value="available"
                                             <?php echo e(old('status', $plot->status) == 'available' ? 'selected' : ''); ?>>
                                             <?php echo e(__('Available')); ?></option>
+                                        <option value="reserved"
+                                            <?php echo e(old('status', $plot->status) == 'reserved' ? 'selected' : ''); ?>>
+                                            <?php echo e(__('Reserved')); ?></option>
                                         <option value="sold"
                                             <?php echo e(old('status', $plot->status) == 'sold' ? 'selected' : ''); ?>>
                                             <?php echo e(__('Sold')); ?></option>
@@ -99,20 +114,20 @@
                                 <div class="form-group mb-3">
                                     <label class="form-label"><?php echo e(__('Latitude')); ?></label>
                                     <input type="text" name="latitude" id="field_lat" class="form-control"
-                                        value="<?php echo e(old('latitude', $plot->latitude)); ?>" placeholder="For map pin">
+                                        value="<?php echo e(old('latitude', $plot->latitude)); ?>" placeholder="For map pin" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
                                     <label class="form-label"><?php echo e(__('Longitude')); ?></label>
                                     <input type="text" name="longitude" id="field_lng" class="form-control"
-                                        value="<?php echo e(old('longitude', $plot->longitude)); ?>" placeholder="For map pin">
+                                        value="<?php echo e(old('longitude', $plot->longitude)); ?>" placeholder="For map pin"
+                                        readonly>
                                 </div>
                             </div>
                             <div class="col-12 mb-3">
                                 <label class="form-label"><?php echo e(__('Field Location on Map')); ?></label>
-                                <div id="field-map-picker" style="height:280px; border-radius:8px; border:1px solid #ddd;">
-                                </div>
+                                <div id="field-map-picker"></div>
                                 <small class="text-muted"><?php echo e(__('Click on map or drag pin to update location')); ?></small>
                             </div>
                             <div class="col-md-6">
@@ -333,9 +348,11 @@
                                         <td><input type="file" name="documents[]"
                                                 class="form-control form-control-sm"></td>
                                         <td><input type="text" name="document_names[]"
-                                                class="form-control form-control-sm" placeholder="e.g. Sale Deed"></td>
+                                                class="form-control form-control-sm" placeholder="e.g. Sale Deed">
+                                        </td>
                                         <td><input type="text" name="document_types[]"
-                                                class="form-control form-control-sm" placeholder="e.g. PDF/Image"></td>
+                                                class="form-control form-control-sm" placeholder="e.g. PDF/Image">
+                                        </td>
                                         <td><button type="button" class="btn btn-sm btn-danger remove-row"><i
                                                     class="ti ti-trash"></i></button></td>
                                     </tr>
@@ -360,6 +377,8 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('script-page'); ?>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         (function() {
             // Add / remove Patwari rows
@@ -395,7 +414,6 @@
                         row.remove();
                         recalcPatwariTotal();
                     } else {
-                        // clear inputs instead of removing the last row
                         row.querySelectorAll('input').forEach(function(input) {
                             input.value = '';
                         });
@@ -403,7 +421,6 @@
                 }
             });
 
-            // Auto-sum patwari total whenever amount inputs change
             function recalcPatwariTotal() {
                 var total = 0;
                 document.querySelectorAll('input[name="patwari_amount[]"]').forEach(function(input) {
@@ -417,49 +434,44 @@
                     recalcPatwariTotal();
                 }
             });
+
+            // ======= Leaflet Map (replaces Google Maps) =======
+            var latInput = document.getElementById('field_lat');
+            var lngInput = document.getElementById('field_lng');
+
+            var defaultLat = parseFloat(latInput.value) ||
+                <?php echo e($plot->mouza->latitude ?? 31.5204); ?>;
+            var defaultLng = parseFloat(lngInput.value) ||
+                <?php echo e($plot->mouza->longitude ?? 74.3587); ?>;
+            var hasInitial = !!(latInput.value && lngInput.value);
+
+            var map = L.map('field-map-picker').setView([defaultLat, defaultLng], hasInitial ? 17 : 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            var marker = L.marker([defaultLat, defaultLng], {
+                draggable: true
+            }).addTo(map);
+
+            function setFieldCoords(lat, lng) {
+                latInput.value = lat.toFixed(7);
+                lngInput.value = lng.toFixed(7);
+            }
+
+            marker.on('dragend', function(e) {
+                var pos = e.target.getLatLng();
+                setFieldCoords(pos.lat, pos.lng);
+            });
+
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                setFieldCoords(e.latlng.lat, e.latlng.lng);
+            });
         })();
     </script>
-<?php $__env->stopPush(); ?>
-<?php $__env->startPush('script-page'); ?>
-    <script>
-        function initFieldMap() {
-            var lat = parseFloat(document.getElementById('field_lat').value) ||
-                <?php echo e($plot->latitude ?? ($plot->mouza->latitude ?? 31.5204)); ?>;
-            var lng = parseFloat(document.getElementById('field_lng').value) ||
-                <?php echo e($plot->longitude ?? ($plot->mouza->longitude ?? 74.3587)); ?>;
-
-            var map = new google.maps.Map(document.getElementById('field-map-picker'), {
-                center: {
-                    lat: lat,
-                    lng: lng
-                },
-                zoom: <?php echo e($plot->latitude ? 17 : 15); ?>
-
-            });
-
-            var marker = new google.maps.Marker({
-                position: {
-                    lat: lat,
-                    lng: lng
-                },
-                map: map,
-                draggable: true
-            });
-
-            google.maps.event.addListener(map, 'click', function(event) {
-                marker.setPosition(event.latLng);
-                document.getElementById('field_lat').value = event.latLng.lat().toFixed(7);
-                document.getElementById('field_lng').value = event.latLng.lng().toFixed(7);
-            });
-
-            google.maps.event.addListener(marker, 'dragend', function(event) {
-                document.getElementById('field_lat').value = event.latLng.lat().toFixed(7);
-                document.getElementById('field_lng').value = event.latLng.lng().toFixed(7);
-            });
-        }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<?php echo e(env('GOOGLE_MAPS_API_KEY', '')); ?>&callback=initFieldMap"
-        async defer></script>
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/realEstate/plot/edit.blade.php ENDPATH**/ ?>

@@ -13,6 +13,10 @@ class Mouza extends Model
         'latitude',
         'longitude',
         'description',
+        'intiqal_number',
+        'intiqal_date',
+        'total_area',
+        'total_area_unit',
         'created_by',
     ];
 

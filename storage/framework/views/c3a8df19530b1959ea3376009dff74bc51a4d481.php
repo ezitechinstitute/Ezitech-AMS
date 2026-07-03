@@ -140,4 +140,4 @@
 
 
 
-<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\AMS\main_file\resources\views/dashboard/super_admin.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/dashboard/super_admin.blade.php ENDPATH**/ ?>

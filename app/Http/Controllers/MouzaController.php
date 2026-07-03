@@ -38,21 +38,30 @@ class MouzaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'      => 'required|string|max:255',
-            'district'  => 'nullable|string|max:255',
-            'tehsil'    => 'nullable|string|max:255',
-            'latitude'  => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'name'             => 'required|string|max:255',
+            'district'         => 'nullable|string|max:255',
+            'tehsil'           => 'nullable|string|max:255',
+            'latitude'         => 'nullable|numeric',
+            'longitude'        => 'nullable|numeric',
+            'description'      => 'nullable|string',
+            'intiqal_number'   => 'nullable|string|max:255',
+            'intiqal_date'     => 'nullable|date',
+            'total_area'       => 'nullable|string|max:50',
+            'total_area_unit'  => 'nullable|string|max:50',
         ]);
 
         Mouza::create([
-            'name'        => $request->name,
-            'district'    => $request->district,
-            'tehsil'      => $request->tehsil,
-            'latitude'    => $request->latitude,
-            'longitude'   => $request->longitude,
-            'description' => $request->description,
-            'created_by'  => Auth::user()->creatorId(),
+            'name'             => $request->name,
+            'district'         => $request->district,
+            'tehsil'           => $request->tehsil,
+            'latitude'         => $request->latitude,
+            'longitude'        => $request->longitude,
+            'description'      => $request->description,
+            'intiqal_number'   => $request->intiqal_number,
+            'intiqal_date'     => $request->intiqal_date,
+            'total_area'       => $request->total_area,
+            'total_area_unit'  => $request->total_area_unit,
+            'created_by'       => auth()->id(),
         ]);
 
         return redirect()->route('mouza.index')->with('success', __('Mouza created successfully.'));
@@ -130,7 +139,7 @@ class MouzaController extends Controller
         $request->validate([
             'field_number' => 'required|unique:real_estate_fields,field_number',
             'seller_name'  => 'required|string|max:255',
-            'area_quantity'=> 'required',
+            'area_quantity' => 'required',
             'amount'       => 'required|numeric',
         ]);
 

@@ -930,4 +930,4 @@
 </script>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\AMS\main_file\resources\views/layouts/landing.blade.php ENDPATH**/ ?>
+<?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/layouts/landing.blade.php ENDPATH**/ ?>

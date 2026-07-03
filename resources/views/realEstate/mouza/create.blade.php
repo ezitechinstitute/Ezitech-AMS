@@ -71,6 +71,59 @@
                                     <input type="text" name="tehsil" class="form-control" value="{{ old('tehsil') }}">
                                 </div>
                             </div>
+
+                            {{-- ======= NEW: Master Intiqal Info ======= --}}
+                            <div class="col-12">
+                                <div class="alert alert-light border mb-3">
+                                    <h6 class="mb-3"><i class="ti ti-file-text"></i>
+                                        {{ __('Master Intiqal Info') }}
+                                        <small class="text-muted fw-normal">
+                                            ({{ __('bulk purchase record for this whole Mouza, if applicable') }})
+                                        </small>
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Intiqal Number') }}</label>
+                                                <input type="text" name="intiqal_number" class="form-control"
+                                                    value="{{ old('intiqal_number') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Intiqal Date') }}</label>
+                                                <input type="date" name="intiqal_date" class="form-control"
+                                                    value="{{ old('intiqal_date') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Total Area') }}</label>
+                                                <input type="text" name="total_area" class="form-control"
+                                                    value="{{ old('total_area') }}" placeholder="e.g. 25">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Unit') }}</label>
+                                                <select name="total_area_unit" class="form-control">
+                                                    <option value="Kanal"
+                                                        {{ old('total_area_unit') == 'Kanal' ? 'selected' : '' }}>
+                                                        Kanal</option>
+                                                    <option value="Marla"
+                                                        {{ old('total_area_unit') == 'Marla' ? 'selected' : '' }}>
+                                                        Marla</option>
+                                                    <option value="Acre"
+                                                        {{ old('total_area_unit') == 'Acre' ? 'selected' : '' }}>Acre
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- ======= END NEW ======= --}}
+
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="form-label">{{ __('Latitude') }}</label>
@@ -173,7 +226,6 @@
                         hint.textContent = 'Location detected. Drag the pin to fine-tune.';
                     },
                     function(err) {
-                        // err.code: 1 = permission denied, 2 = position unavailable, 3 = timeout
                         if (err.code === 1) {
                             hint.textContent =
                                 'Location permission denied. Click the lock icon in the address bar to allow location, or set the pin manually.';
@@ -190,7 +242,6 @@
 
             locateBtn.addEventListener('click', locateMe);
 
-            // Try auto-detect on load only if no coordinates exist yet
             if (!hasInitial) {
                 locateMe();
             }

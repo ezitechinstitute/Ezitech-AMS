@@ -1,16 +1,16 @@
-@extends('layouts.admin')
-@section('page-title')
-    {{ __('Edit Mouza') }}
-@endsection
-@section('breadcrumb')
-    <li class="breadcrumb-item">
-        <a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
-    </li>
-    <li class="breadcrumb-item"><a href="{{ route('mouza.index') }}">{{ __('Mouza') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Edit') }}</li>
-@endsection
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Edit Mouza')); ?>
 
-@push('css-page')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('breadcrumb'); ?>
+    <li class="breadcrumb-item">
+        <a href="<?php echo e(route('dashboard')); ?>"><?php echo e(__('Dashboard')); ?></a>
+    </li>
+    <li class="breadcrumb-item"><a href="<?php echo e(route('mouza.index')); ?>"><?php echo e(__('Mouza')); ?></a></li>
+    <li class="breadcrumb-item"><?php echo e(__('Edit')); ?></li>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('css-page'); ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -20,95 +20,96 @@
             border: 1px solid #ddd;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ __('Edit Mouza (Area)') }}</h5>
+                    <h5><?php echo e(__('Edit Mouza (Area)')); ?></h5>
                 </div>
                 <div class="card-body">
-                    @if ($errors->any())
+                    <?php if($errors->any()): ?>
                         <div class="alert alert-danger">
                             <ul class="mb-0">
-                                @foreach ($errors->all() as $e)
-                                    <li>{{ $e }}</li>
-                                @endforeach
+                                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li><?php echo e($e); ?></li>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ul>
                         </div>
-                    @endif
-                    <form action="{{ route('mouza.update', $mouza->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+                    <?php endif; ?>
+                    <form action="<?php echo e(route('mouza.update', $mouza->id)); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('PUT'); ?>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Mouza Name') }} <span
+                                    <label class="form-label"><?php echo e(__('Mouza Name')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="name" class="form-control" required
-                                        value="{{ old('name', $mouza->name) }}">
+                                        value="<?php echo e(old('name', $mouza->name)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('District') }}</label>
+                                    <label class="form-label"><?php echo e(__('District')); ?></label>
                                     <input type="text" name="district" class="form-control"
-                                        value="{{ old('district', $mouza->district) }}">
+                                        value="<?php echo e(old('district', $mouza->district)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Tehsil') }}</label>
+                                    <label class="form-label"><?php echo e(__('Tehsil')); ?></label>
                                     <input type="text" name="tehsil" class="form-control"
-                                        value="{{ old('tehsil', $mouza->tehsil) }}">
+                                        value="<?php echo e(old('tehsil', $mouza->tehsil)); ?>">
                                 </div>
                             </div>
-                            {{-- ======= Master Intiqal Info ======= --}}
+                            
                             <div class="col-12">
                                 <div class="alert alert-light border mb-3">
                                     <h6 class="mb-3"><i class="ti ti-file-text"></i>
-                                        {{ __('Master Intiqal Info') }}
+                                        <?php echo e(__('Master Intiqal Info')); ?>
+
                                         <small class="text-muted fw-normal">
-                                            ({{ __('bulk purchase record for this whole Mouza, if applicable') }})
+                                            (<?php echo e(__('bulk purchase record for this whole Mouza, if applicable')); ?>)
                                         </small>
                                     </h6>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Intiqal Number') }}</label>
+                                                <label class="form-label"><?php echo e(__('Intiqal Number')); ?></label>
                                                 <input type="text" name="intiqal_number" class="form-control"
-                                                    value="{{ old('intiqal_number', $mouza->intiqal_number) }}">
+                                                    value="<?php echo e(old('intiqal_number', $mouza->intiqal_number)); ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Intiqal Date') }}</label>
+                                                <label class="form-label"><?php echo e(__('Intiqal Date')); ?></label>
                                                 <input type="date" name="intiqal_date" class="form-control"
-                                                    value="{{ old('intiqal_date', $mouza->intiqal_date) }}">
+                                                    value="<?php echo e(old('intiqal_date', $mouza->intiqal_date)); ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Total Area') }}</label>
+                                                <label class="form-label"><?php echo e(__('Total Area')); ?></label>
                                                 <input type="text" name="total_area" class="form-control"
-                                                    value="{{ old('total_area', $mouza->total_area) }}"
+                                                    value="<?php echo e(old('total_area', $mouza->total_area)); ?>"
                                                     placeholder="e.g. 25">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Unit') }}</label>
+                                                <label class="form-label"><?php echo e(__('Unit')); ?></label>
                                                 <select name="total_area_unit" class="form-control">
                                                     <option value="Kanal"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Kanal' ? 'selected' : '' }}>
+                                                        <?php echo e(old('total_area_unit', $mouza->total_area_unit) == 'Kanal' ? 'selected' : ''); ?>>
                                                         Kanal</option>
                                                     <option value="Marla"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Marla' ? 'selected' : '' }}>
+                                                        <?php echo e(old('total_area_unit', $mouza->total_area_unit) == 'Marla' ? 'selected' : ''); ?>>
                                                         Marla</option>
                                                     <option value="Acre"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Acre' ? 'selected' : '' }}>
+                                                        <?php echo e(old('total_area_unit', $mouza->total_area_unit) == 'Acre' ? 'selected' : ''); ?>>
                                                         Acre
                                                     </option>
                                                 </select>
@@ -117,56 +118,57 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- ======= END Intiqal Info ======= --}}
+                            
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Latitude') }}</label>
+                                    <label class="form-label"><?php echo e(__('Latitude')); ?></label>
                                     <input type="text" name="latitude" id="latitude" class="form-control"
-                                        value="{{ old('latitude', $mouza->latitude) }}" placeholder="e.g. 31.5204"
+                                        value="<?php echo e(old('latitude', $mouza->latitude)); ?>" placeholder="e.g. 31.5204"
                                         readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Longitude') }}</label>
+                                    <label class="form-label"><?php echo e(__('Longitude')); ?></label>
                                     <input type="text" name="longitude" id="longitude" class="form-control"
-                                        value="{{ old('longitude', $mouza->longitude) }}" placeholder="e.g. 74.3587"
+                                        value="<?php echo e(old('longitude', $mouza->longitude)); ?>" placeholder="e.g. 74.3587"
                                         readonly>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Description') }}</label>
-                                    <textarea name="description" class="form-control" rows="3">{{ old('description', $mouza->description) }}</textarea>
+                                    <label class="form-label"><?php echo e(__('Description')); ?></label>
+                                    <textarea name="description" class="form-control" rows="3"><?php echo e(old('description', $mouza->description)); ?></textarea>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Leaflet Map picker --}}
+                        
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">{{ __('Pick Location on Map') }}</label>
+                                <label class="form-label mb-0"><?php echo e(__('Pick Location on Map')); ?></label>
                                 <button type="button" id="use-my-location" class="btn btn-sm btn-outline-primary">
-                                    <i class="ti ti-current-location"></i> {{ __('Use My Location') }}
+                                    <i class="ti ti-current-location"></i> <?php echo e(__('Use My Location')); ?>
+
                                 </button>
                             </div>
                             <div id="map-picker"></div>
                             <small id="map-hint"
-                                class="text-muted">{{ __('Click on the map or drag the pin to update the Mouza location.') }}</small>
+                                class="text-muted"><?php echo e(__('Click on the map or drag the pin to update the Mouza location.')); ?></small>
                         </div>
 
                         <div class="text-end">
-                            <a href="{{ route('mouza.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
-                            <button type="submit" class="btn btn-primary">{{ __('Save Mouza') }}</button>
+                            <a href="<?php echo e(route('mouza.index')); ?>" class="btn btn-secondary"><?php echo e(__('Cancel')); ?></a>
+                            <button type="submit" class="btn btn-primary"><?php echo e(__('Save Mouza')); ?></button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('script-page')
+<?php $__env->startPush('script-page'); ?>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
@@ -237,7 +239,12 @@
                 );
             }
 
+            // NOTE: unlike the Create form, we do NOT auto-locate on page load here —
+            // this is an Edit form, so the existing saved pin should stay put unless
+            // the user explicitly clicks "Use My Location".
             locateBtn.addEventListener('click', locateMe);
         })();
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/realEstate/mouza/edit.blade.php ENDPATH**/ ?>

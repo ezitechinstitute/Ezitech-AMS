@@ -192,6 +192,36 @@
                     <?php endif; ?>
                 <?php endif; ?>
 
+
+                
+<?php if( Gate::check('manage mouza') || Gate::check('manage plot')): ?>
+<li class="dash-item dash-hasmenu <?php echo e((Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? ' active dash-trigger' : ''); ?>">
+    <a href="#!" class="dash-link">
+        <span class="dash-micon"><i class="ti ti-home-2"></i></span>
+        <span class="dash-mtext"><?php echo e(__('Real Estate')); ?></span>
+        <span class="dash-arrow"><i data-feather="chevron-right"></i></span>
+    </a>
+    <ul class="dash-submenu <?php echo e((Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? 'show' : ''); ?>">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage mouza')): ?>
+        <li class="dash-item <?php echo e((Request::segment(1) == 'mouza') ? 'active' : ''); ?>">
+            <a class="dash-link" href="<?php echo e(route('mouza.index')); ?>">
+                <i class="ti ti-map-pin me-1"></i><?php echo e(__('Agricultural Land')); ?>
+
+            </a>
+        </li>
+        <?php endif; ?>
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage plot')): ?>
+        <li class="dash-item <?php echo e((Request::segment(1) == 'plot') ? 'active' : ''); ?>">
+            <a class="dash-link" href="<?php echo e(route('plot.index')); ?>">
+                <i class="ti ti-layout-grid me-1"></i><?php echo e(__('Plots')); ?>
+
+            </a>
+        </li>
+        <?php endif; ?>
+    </ul>
+</li>
+<?php endif; ?>
+
                 
                 <?php if(Gate::check('manage product & service')): ?>
                     <li class="dash-item <?php echo e((Request::segment(1) == 'productservice')?'active':''); ?> ">
