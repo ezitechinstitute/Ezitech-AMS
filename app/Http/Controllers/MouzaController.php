@@ -38,19 +38,22 @@ class MouzaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'             => 'required|string|max:255',
-            'district'         => 'nullable|string|max:255',
-            'tehsil'           => 'nullable|string|max:255',
-            'latitude'         => 'nullable|numeric',
-            'longitude'        => 'nullable|numeric',
-            'description'      => 'nullable|string',
-            'intiqal_number'   => 'nullable|string|max:255',
-            'intiqal_date'     => 'nullable|date',
-            'total_area'       => 'nullable|string|max:50',
-            'total_area_unit'  => 'nullable|string|max:50',
+            'name'                => 'required|string|max:255',
+            'district'            => 'nullable|string|max:255',
+            'tehsil'              => 'nullable|string|max:255',
+            'latitude'            => 'nullable|numeric',
+            'longitude'           => 'nullable|numeric',
+            'description'         => 'nullable|string',
+            'intiqal_number'      => 'nullable|string|max:255',
+            'intiqal_date'        => 'nullable|date',
+            'total_area'          => 'nullable|string|max:50',
+            'total_area_unit'     => 'nullable|string|max:50',
+            'documents.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'document_names.*'    => 'nullable|string|max:255',
+            'document_types.*'    => 'nullable|string|max:100',
         ]);
 
-        Mouza::create([
+        $mouza = Mouza::create([
             'name'             => $request->name,
             'district'         => $request->district,
             'tehsil'           => $request->tehsil,
@@ -63,6 +66,23 @@ class MouzaController extends Controller
             'total_area_unit'  => $request->total_area_unit,
             'created_by'       => auth()->id(),
         ]);
+
+        // ===== Handle Supporting Documents =====
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $index => $file) {
+                if (!$file) {
+                    continue;
+                }
+
+                $path = $file->store('mouza-documents', 'public');
+
+                $mouza->documents()->create([
+                    'document_name' => $request->document_names[$index] ?? $file->getClientOriginalName(),
+                    'document_type' => $request->document_types[$index] ?? null,
+                    'document_path' => $path,
+                ]);
+            }
+        }
 
         return redirect()->route('mouza.index')->with('success', __('Mouza created successfully.'));
     }

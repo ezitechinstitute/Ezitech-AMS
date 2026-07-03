@@ -239,9 +239,6 @@
                 );
             }
 
-            // NOTE: unlike the Create form, we do NOT auto-locate on page load here —
-            // this is an Edit form, so the existing saved pin should stay put unless
-            // the user explicitly clicks "Use My Location".
             locateBtn.addEventListener('click', locateMe);
         })();
     </script>

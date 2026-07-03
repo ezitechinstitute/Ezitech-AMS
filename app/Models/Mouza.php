@@ -34,4 +34,9 @@ class Mouza extends Model
     {
         return $this->hasMany(RealEstateField::class, 'mouza_id')->where('status', 'sold');
     }
+
+    public function documents()
+    {
+        return $this->morphMany(RealEstateDocument::class, 'model');
+    }
 }

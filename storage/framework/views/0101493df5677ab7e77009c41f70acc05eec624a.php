@@ -47,7 +47,7 @@
                             </ul>
                         </div>
                     <?php endif; ?>
-                    <form action="<?php echo e(route('mouza.store')); ?>" method="POST">
+                    <form action="<?php echo e(route('mouza.store')); ?>" method="POST" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="row">
                             <div class="col-md-6">
@@ -161,6 +161,43 @@
                                 class="text-muted"><?php echo e(__('Search a place, click on the map, or drag the pin to set the Mouza location.')); ?></small>
                         </div>
 
+                        
+                        <div class="card mb-3">
+                            <div class="card-header" style="background:#6f42c1; color:white;">
+                                <h6 class="mb-0"><i class="ti ti-paperclip"></i> <?php echo e(__('Supporting Documents')); ?>
+
+                                    <small class="fw-normal">(<?php echo e(__('Master Fard / Intiqal / Registry copies')); ?>)</small>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="documents-wrapper">
+                                    <div class="doc-row row mb-2 align-items-center">
+                                        <div class="col-4">
+                                            <select name="document_types[]" class="form-control form-control-sm">
+                                                <option value="">-- Type --</option>
+                                                <option value="Fard">Fard</option>
+                                                <option value="Intiqal">Intiqal</option>
+                                                <option value="Registry">Registry</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="text" name="document_names[]"
+                                                class="form-control form-control-sm" placeholder="Document Name">
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="file" name="documents[]"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-1">
+                                            <button type="button" class="btn btn-sm btn-success"
+                                                onclick="addDocRow()"><i class="ti ti-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="text-end">
                             <a href="<?php echo e(route('mouza.index')); ?>" class="btn btn-secondary"><?php echo e(__('Cancel')); ?></a>
                             <button type="submit" class="btn btn-primary"><?php echo e(__('Save Mouza')); ?></button>
@@ -176,6 +213,20 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        // Add Document row
+        function addDocRow() {
+            var html = '<div class="doc-row row mb-2 align-items-center">' +
+                '<div class="col-4"><select name="document_types[]" class="form-control form-control-sm">' +
+                '<option value="">-- Type --</option>' +
+                '<option value="Fard">Fard</option><option value="Intiqal">Intiqal</option>' +
+                '<option value="Registry">Registry</option><option value="Other">Other</option></select></div>' +
+                '<div class="col-4"><input type="text" name="document_names[]" class="form-control form-control-sm" placeholder="Document Name"></div>' +
+                '<div class="col-3"><input type="file" name="documents[]" class="form-control form-control-sm"></div>' +
+                '<div class="col-1"><button type="button" class="btn btn-sm btn-danger" onclick="this.closest(\'.doc-row\').remove()"><i class="ti ti-trash"></i></button></div>' +
+                '</div>';
+            document.getElementById('documents-wrapper').insertAdjacentHTML('beforeend', html);
+        }
+
         (function() {
             var latInput = document.getElementById('latitude');
             var lngInput = document.getElementById('longitude');
