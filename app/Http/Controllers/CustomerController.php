@@ -63,10 +63,10 @@ class CustomerController extends Controller
         if (\Auth::user()->can('create customer')) {
 
               // Fix: convert literal "null" string to empty string
-        $request->merge([
-            'billing_state' => $request->billing_state === 'null' ? '' : $request->billing_state,
-            'shipping_state' => $request->shipping_state === 'null' ? '' : $request->shipping_state,
-        ]);
+  $request->merge([
+    'billing_state' => ($request->billing_state === 'null' || $request->billing_state === null) ? '' : $request->billing_state,
+    'shipping_state' => ($request->shipping_state === 'null' || $request->shipping_state === null) ? '' : $request->shipping_state,
+]);
 
             $rules = [
                 'name' => 'required',
@@ -170,6 +170,7 @@ class CustomerController extends Controller
     public function edit($id)
     {
         if (\Auth::user()->can('edit customer')) {
+            
             $customer              = Customer::find($id);
             $customer->customField = CustomField::getData($customer, 'customer');
 
@@ -187,6 +188,10 @@ class CustomerController extends Controller
 
         if (\Auth::user()->can('edit customer')) {
 
+        $request->merge([
+    'billing_state' => ($request->billing_state === 'null' || $request->billing_state === null) ? '' : $request->billing_state,
+    'shipping_state' => ($request->shipping_state === 'null' || $request->shipping_state === null) ? '' : $request->shipping_state,
+]);
             $rules = [
                 'name' => 'required',
                 // 'contact' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/',
