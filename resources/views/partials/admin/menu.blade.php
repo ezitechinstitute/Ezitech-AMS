@@ -569,6 +569,11 @@
                                     <a class="dash-link" href="{{route('report.bill.summary')}}">{{ __('Bill Summary') }}</a>
                                 </li>
                             @endcan
+                            @can('cash flow report')
+                                <li class="dash-item {{ (Request::route()->getName() == 'report.cash.flow') ? ' active' : '' }}">
+                                    <a class="dash-link" href="{{ route('report.cash.flow') }}">{{ __('Cash Flow') }}</a>
+                                </li>
+                            @endcan
                             @can('stock report')
                                 <li class="dash-item {{ (Request::route()->getName() == 'report.product.stock.report' ) ? ' active' : '' }}">
                                     <a class="dash-link" href="{{route('report.product.stock.report')}}">{{ __('Product Stock') }}</a>
