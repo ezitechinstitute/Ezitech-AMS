@@ -131,6 +131,16 @@
                     <span>{{ __('Asset Purchases') }}</span>
                     <span class="outflow">- {{ number_format($assetPurchases, 2) }}</span>
                 </div>
+
+                <div class="cf-row d-flex justify-content-between">
+    <span>{{ __('Agricultural Land Purchases') }}</span>
+    <span class="outflow">- {{ number_format($propertyPurchases, 2) }}</span>
+</div>
+<div class="cf-row d-flex justify-content-between">
+    <span>{{ __('Plot Purchases') }}</span>
+    <span class="outflow">- {{ number_format($plotPurchases, 2) }}</span>
+</div>
+
                 <div class="cf-net d-flex justify-content-between">
                     <span>{{ __('Net Cash from Investing Activities') }}</span>
                     <span class="{{ $investingNet >= 0 ? 'inflow' : 'outflow' }}">

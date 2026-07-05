@@ -1683,10 +1683,23 @@ class ReportController extends Controller
 
     // ===== INVESTING ACTIVITIES =====
     // Property Sale (Real Estate Fields sold)
-    $propertySales = \App\Models\RealEstateField::where('created_by', $creatorId)
-        ->where('status', 'sold')
-        ->whereBetween('updated_at', [$start, $end . ' 23:59:59'])
-        ->sum('amount');
+ // Property Sales (sold fields)
+$propertySales = \App\Models\RealEstateField::where('created_by', $creatorId)
+    ->where('status', 'sold')
+    ->whereBetween('updated_at', [$start, $end . ' 23:59:59'])
+    ->sum('amount');
+
+// Property Purchases (new fields added — available status)
+$propertyPurchases = \App\Models\RealEstateField::where('created_by', $creatorId)
+    ->where('status', 'available')
+    ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+    ->sum('amount');
+
+// Plot Purchases
+$plotPurchases = \App\Models\Plot::where('created_by', $creatorId)
+    ->where('status', 'available')
+    ->whereBetween('created_at', [$start, $end . ' 23:59:59'])
+    ->sum('amount');
 
     // Plot Sales
     $plotSales = \App\Models\Plot::where('created_by', $creatorId)
@@ -1698,7 +1711,7 @@ class ReportController extends Controller
    $assetPurchases = 0; 
 
     $investingInflow  = $propertySales + $plotSales;
-    $investingOutflow = $assetPurchases;
+    $investingOutflow = $assetPurchases + $propertyPurchases + $plotPurchases;
     $investingNet     = $investingInflow - $investingOutflow;
 
     // ===== FINANCING ACTIVITIES =====
@@ -1724,6 +1737,7 @@ class ReportController extends Controller
         'invoiceReceipts', 'revenueReceipts', 'billPayments', 'expensePayments',
         'operatingInflow', 'operatingOutflow', 'operatingNet',
         'propertySales', 'plotSales', 'assetPurchases',
+        'propertyPurchases', 'plotPurchases',
         'investingInflow', 'investingOutflow', 'investingNet',
         'bankTransfersIn', 'financingInflow', 'financingOutflow', 'financingNet',
         'netCashChange'
