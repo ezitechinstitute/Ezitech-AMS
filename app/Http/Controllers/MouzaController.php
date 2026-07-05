@@ -154,48 +154,149 @@ class MouzaController extends Controller
         return view('realEstate.field.create', compact('mouza', 'bankAccounts'));
     }
 
+    // public function fieldStore(Request $request, $mouza_id)
+    // {
+    //     $request->validate([
+    //         'field_number' => 'required|unique:real_estate_fields,field_number',
+    //         'seller_name'  => 'required|string|max:255',
+    //         'area_quantity' => 'required',
+    //         'amount'       => 'required|numeric',
+    //     ]);
+
+    //     $field = RealEstateField::create([
+    //         'mouza_id'           => $mouza_id,
+    //         'field_number'       => $request->field_number,
+    //         'intiqal_no'         => $request->intiqal_no,
+    //         'area_quantity'      => $request->area_quantity,
+    //         'area_unit'          => $request->area_unit ?? 'Marla',
+    //         'amount'             => $request->amount,
+    //         'status'             => $request->status ?? 'available',
+    //         'latitude'           => $request->latitude,
+    //         'longitude'          => $request->longitude,
+    //         'seller_name'        => $request->seller_name,
+    //         'seller_cnic'        => $request->seller_cnic,
+    //         'seller_phone'       => $request->seller_phone,
+    //         'seller_address'     => $request->seller_address,
+    //         'seller_father_name' => $request->seller_father_name,
+    //         'agent_name'         => $request->agent_name,
+    //         'agent_cnic'         => $request->agent_cnic,
+    //         'agent_phone'        => $request->agent_phone,
+    //         'agent_address'      => $request->agent_address,
+    //         'agent_commission'   => $request->agent_commission ?? 0,
+    //         'patwari_total'      => $request->patwari_total ?? 0,
+    //         'bank_account_id'    => $request->bank_account_id,
+    //         'notes'              => $request->notes,
+    //         'created_by'         => Auth::user()->creatorId(),
+    //     ]);
+
+    //     // Save Patwari Expense Breakdown
+    //     if ($request->patwari_person && is_array($request->patwari_person)) {
+    //         foreach ($request->patwari_person as $i => $person) {
+    //             if (!empty($person)) {
+    //                 PatwariExpense::create([
+    //                     'model_type'  => 'field',
+    //                     'model_id'    => $field->id,
+    //                     'person_name' => $person,
+    //                     'amount'      => $request->patwari_amount[$i] ?? 0,
+    //                     'note'        => $request->patwari_note[$i] ?? null,
+    //                     'created_by'  => Auth::user()->creatorId(),
+    //                 ]);
+    //             }
+    //         }
+    //     }
+
+    //     // Save Documents
+    //     if ($request->hasFile('documents')) {
+    //         foreach ($request->file('documents') as $i => $file) {
+    //             $path = $file->store('real-estate/documents', 'public');
+    //             RealEstateDocument::create([
+    //                 'model_type'    => 'field',
+    //                 'model_id'      => $field->id,
+    //                 'document_name' => $request->document_names[$i] ?? $file->getClientOriginalName(),
+    //                 'document_path' => $path,
+    //                 'document_type' => $request->document_types[$i] ?? null,
+    //                 'created_by'    => Auth::user()->creatorId(),
+    //             ]);
+    //         }
+    //     }
+
+    //     return redirect()->route('mouza.show', $mouza_id)->with('success', __('Khait (Field) added successfully.'));
+    // }
+
+
     public function fieldStore(Request $request, $mouza_id)
     {
         $request->validate([
-            'field_number' => 'required|unique:real_estate_fields,field_number',
-            'seller_name'  => 'required|string|max:255',
-            'area_quantity' => 'required',
-            'amount'       => 'required|numeric',
+            'intiqal_no'    => 'nullable|string|max:255',
+            'amount'        => 'required|numeric',
+            'seller_name'   => 'required|string|max:255',
+
+            'fields'                    => 'required|array|min:1',
+            'fields.*.field_number'     => 'required|string|distinct|unique:real_estate_fields,field_number',
+            'fields.*.status'           => 'nullable|in:available,reserved,sold',
+            'fields.*.area_acre'        => 'nullable|numeric|min:0',
+            'fields.*.area_kanal'       => 'nullable|numeric|min:0',
+            'fields.*.area_marla'       => 'nullable|numeric|min:0',
+            'fields.*.total_marla'      => 'required|numeric|min:0.01',
+            'fields.*.latitude'         => 'nullable|numeric',
+            'fields.*.longitude'        => 'nullable|numeric',
+        ], [
+            'fields.*.field_number.unique'   => 'Field Number :input already exists.',
+            'fields.*.field_number.distinct' => 'Duplicate Field Numbers are not allowed in the same submission.',
+            'fields.*.total_marla.required'  => 'Please enter a valid Land Area (Acre/Kanal/Marla) for every field.',
         ]);
 
-        $field = RealEstateField::create([
-            'mouza_id'           => $mouza_id,
-            'field_number'       => $request->field_number,
-            'intiqal_no'         => $request->intiqal_no,
-            'area_quantity'      => $request->area_quantity,
-            'area_unit'          => $request->area_unit ?? 'Marla',
-            'amount'             => $request->amount,
-            'status'             => $request->status ?? 'available',
-            'latitude'           => $request->latitude,
-            'longitude'          => $request->longitude,
-            'seller_name'        => $request->seller_name,
-            'seller_cnic'        => $request->seller_cnic,
-            'seller_phone'       => $request->seller_phone,
-            'seller_address'     => $request->seller_address,
-            'seller_father_name' => $request->seller_father_name,
-            'agent_name'         => $request->agent_name,
-            'agent_cnic'         => $request->agent_cnic,
-            'agent_phone'        => $request->agent_phone,
-            'agent_address'      => $request->agent_address,
-            'agent_commission'   => $request->agent_commission ?? 0,
-            'patwari_total'      => $request->patwari_total ?? 0,
-            'bank_account_id'    => $request->bank_account_id,
-            'notes'              => $request->notes,
-            'created_by'         => Auth::user()->creatorId(),
-        ]);
+        $createdFields = [];
 
-        // Save Patwari Expense Breakdown
+        foreach ($request->fields as $fieldData) {
+            $createdFields[] = RealEstateField::create([
+                'mouza_id'           => $mouza_id,
+                'field_number'       => $fieldData['field_number'],
+                'intiqal_no'         => $request->intiqal_no,
+
+                // Normalized total (in Marla) kept in the existing area_quantity/area_unit columns
+                'area_quantity'      => $fieldData['total_marla'],
+                'area_unit'          => 'Marla',
+
+                // Original breakdown, so receipts/prints can still show "5 Kanal 10 Marla"
+                'area_acre'          => $fieldData['area_acre'] ?? 0,
+                'area_kanal'         => $fieldData['area_kanal'] ?? 0,
+                'area_marla'         => $fieldData['area_marla'] ?? 0,
+
+                'amount'             => $request->amount,
+                'status'             => $fieldData['status'] ?? 'available',
+                'latitude'           => $fieldData['latitude'] ?? null,
+                'longitude'          => $fieldData['longitude'] ?? null,
+
+                // Shared Intiqal-level data, copied onto every field row
+                'seller_name'        => $request->seller_name,
+                'seller_cnic'        => $request->seller_cnic,
+                'seller_phone'       => $request->seller_phone,
+                'seller_address'     => $request->seller_address,
+                'seller_father_name' => $request->seller_father_name,
+                'agent_name'         => $request->agent_name,
+                'agent_cnic'         => $request->agent_cnic,
+                'agent_phone'        => $request->agent_phone,
+                'agent_address'      => $request->agent_address,
+                'agent_commission'   => $request->agent_commission ?? 0,
+                'patwari_total'      => $request->patwari_total ?? 0,
+                'bank_account_id'    => $request->bank_account_id,
+                'notes'              => $request->notes,
+                'created_by'         => Auth::user()->creatorId(),
+            ]);
+        }
+
+        // Patwari expense breakdown and Supporting Documents are Intiqal-level
+        // (not per field), so they are linked to the first field created.
+        // All fields sharing the same intiqal_no can be looked up together.
+        $primaryField = $createdFields[0];
+
         if ($request->patwari_person && is_array($request->patwari_person)) {
             foreach ($request->patwari_person as $i => $person) {
                 if (!empty($person)) {
                     PatwariExpense::create([
                         'model_type'  => 'field',
-                        'model_id'    => $field->id,
+                        'model_id'    => $primaryField->id,
                         'person_name' => $person,
                         'amount'      => $request->patwari_amount[$i] ?? 0,
                         'note'        => $request->patwari_note[$i] ?? null,
@@ -205,13 +306,12 @@ class MouzaController extends Controller
             }
         }
 
-        // Save Documents
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $i => $file) {
                 $path = $file->store('real-estate/documents', 'public');
                 RealEstateDocument::create([
                     'model_type'    => 'field',
-                    'model_id'      => $field->id,
+                    'model_id'      => $primaryField->id,
                     'document_name' => $request->document_names[$i] ?? $file->getClientOriginalName(),
                     'document_path' => $path,
                     'document_type' => $request->document_types[$i] ?? null,
@@ -220,7 +320,12 @@ class MouzaController extends Controller
             }
         }
 
-        return redirect()->route('mouza.show', $mouza_id)->with('success', __('Khait (Field) added successfully.'));
+        $count = count($createdFields);
+
+        return redirect()->route('mouza.show', $mouza_id)
+            ->with('success', $count > 1
+                ? "{$count} Fields added successfully under Intiqal No. {$request->intiqal_no}."
+                : 'Khait (Field) added successfully.');
     }
 
     public function fieldShow($id)
@@ -230,6 +335,8 @@ class MouzaController extends Controller
             ->findOrFail($id);
         return view('realEstate.field.show', compact('field'));
     }
+
+
 
     public function fieldEdit($id)
     {
@@ -243,11 +350,29 @@ class MouzaController extends Controller
     {
         $field = RealEstateField::where('created_by', Auth::user()->creatorId())->findOrFail($id);
 
+        $request->validate([
+            'field_number'  => 'required|unique:real_estate_fields,field_number,' . $field->id,
+            'seller_name'   => 'required|string|max:255',
+            'amount'        => 'required|numeric',
+            'area_acre'     => 'nullable|numeric|min:0',
+            'area_kanal'    => 'nullable|numeric|min:0',
+            'area_marla'    => 'nullable|numeric|min:0',
+            'area_quantity' => 'required|numeric|min:0.01', // total in Marla, calculated on the frontend
+        ]);
+
         $field->update([
             'field_number'       => $request->field_number,
             'intiqal_no'         => $request->intiqal_no,
+
+            // Normalized total (in Marla)
             'area_quantity'      => $request->area_quantity,
-            'area_unit'          => $request->area_unit ?? 'Marla',
+            'area_unit'          => 'Marla',
+
+            // Original breakdown (Acre / Kanal / Marla), so it can be displayed as entered
+            'area_acre'          => $request->area_acre ?? 0,
+            'area_kanal'         => $request->area_kanal ?? 0,
+            'area_marla'         => $request->area_marla ?? 0,
+
             'amount'             => $request->amount,
             'status'             => $request->status,
             'latitude'           => $request->latitude,

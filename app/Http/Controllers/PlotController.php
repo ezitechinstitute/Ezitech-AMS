@@ -43,47 +43,88 @@ class PlotController extends Controller
         return view('realEstate.plot.create', compact('mouzas', 'mouza', 'bankAccounts'));
     }
 
+
+
     public function store(Request $request)
     {
         $request->validate([
-            'field_number'   => 'required|unique:plots,field_number',
-            'purchaser_name' => 'required|string|max:255',
-            'area_quantity'  => 'required',
+            'intiqal_no'     => 'nullable|string|max:255',
             'amount'         => 'required|numeric',
+            'purchaser_name' => 'required|string|max:255',
+
+            'fields'                    => 'required|array|min:1',
+            'fields.*.field_number'     => 'required|string|distinct|unique:plots,field_number',
+            'fields.*.status'           => 'nullable|in:available,reserved,sold',
+            'fields.*.area_acre'        => 'nullable|numeric|min:0',
+            'fields.*.area_kanal'       => 'nullable|numeric|min:0',
+            'fields.*.area_marla'       => 'nullable|numeric|min:0',
+            'fields.*.total_marla'      => 'required|numeric|min:0.01',
+            'fields.*.latitude'         => 'nullable|numeric',
+            'fields.*.longitude'        => 'nullable|numeric',
+        ], [
+            'fields.*.field_number.unique'   => 'Field Number :input already exists.',
+            'fields.*.field_number.distinct' => 'Duplicate Field Numbers are not allowed in the same submission.',
+            'fields.*.total_marla.required'  => 'Please enter a valid Land Area (Acre/Kanal/Marla) for every field.',
         ]);
 
-        $plot = Plot::create([
-            'field_number'         => $request->field_number,
-            'intiqal_no'           => $request->intiqal_no,
-            'area_quantity'        => $request->area_quantity,
-            'area_unit'            => $request->area_unit ?? 'Marla',
-            'amount'               => $request->amount,
-            'status'               => $request->status ?? 'available',
-            'latitude'             => $request->latitude,
-            'longitude'            => $request->longitude,
-            'purchaser_name'       => $request->purchaser_name,
-            'purchaser_cnic'       => $request->purchaser_cnic,
-            'purchaser_phone'      => $request->purchaser_phone,
-            'purchaser_address'    => $request->purchaser_address,
-            'purchaser_father_name' => $request->purchaser_father_name,
-            'agent_name'           => $request->agent_name,
-            'agent_cnic'           => $request->agent_cnic,
-            'agent_phone'          => $request->agent_phone,
-            'agent_address'        => $request->agent_address,
-            'agent_commission'     => $request->agent_commission ?? 0,
-            'patwari_total'        => $request->patwari_total ?? 0,
-            'bank_account_id'      => $request->bank_account_id,
-            'notes'                => $request->notes,
-            'created_by'           => Auth::user()->creatorId(),
-        ]);
+        $createdPlots = [];
+        $anySold      = false;
 
-        // Patwari Expense Breakdown
+        foreach ($request->fields as $fieldData) {
+            $plot = Plot::create([
+                'mouza_id'              => $request->mouza_id,
+                'field_number'          => $fieldData['field_number'],
+                'intiqal_no'            => $request->intiqal_no,
+
+                // Normalized total (in Marla)
+                'area_quantity'         => $fieldData['total_marla'],
+                'area_unit'             => 'Marla',
+
+                // Original breakdown, so receipts/prints can show "5 Kanal 10 Marla"
+                'area_acre'             => $fieldData['area_acre'] ?? 0,
+                'area_kanal'            => $fieldData['area_kanal'] ?? 0,
+                'area_marla'            => $fieldData['area_marla'] ?? 0,
+
+                'amount'                => $request->amount,
+                'status'                => $fieldData['status'] ?? 'available',
+                'latitude'              => $fieldData['latitude'] ?? null,
+                'longitude'             => $fieldData['longitude'] ?? null,
+
+                // Shared Intiqal-level data, copied onto every plot row
+                'purchaser_name'        => $request->purchaser_name,
+                'purchaser_cnic'        => $request->purchaser_cnic,
+                'purchaser_phone'       => $request->purchaser_phone,
+                'purchaser_address'     => $request->purchaser_address,
+                'purchaser_father_name' => $request->purchaser_father_name,
+                'agent_name'            => $request->agent_name,
+                'agent_cnic'            => $request->agent_cnic,
+                'agent_phone'           => $request->agent_phone,
+                'agent_address'         => $request->agent_address,
+                'agent_commission'      => $request->agent_commission ?? 0,
+                'patwari_total'         => $request->patwari_total ?? 0,
+                'bank_account_id'       => $request->bank_account_id,
+                'notes'                 => $request->notes,
+                'created_by'            => Auth::user()->creatorId(),
+            ]);
+
+            $createdPlots[] = $plot;
+
+            if ($plot->status == 'sold') {
+                $anySold = true;
+            }
+        }
+
+        // Patwari expense breakdown and Supporting Documents are Intiqal-level
+        // (not per plot), so they are linked to the first plot created.
+        // All plots sharing the same intiqal_no can be looked up together.
+        $primaryPlot = $createdPlots[0];
+
         if ($request->patwari_person && is_array($request->patwari_person)) {
             foreach ($request->patwari_person as $i => $person) {
                 if (!empty($person)) {
                     PatwariExpense::create([
                         'model_type'  => 'plot',
-                        'model_id'    => $plot->id,
+                        'model_id'    => $primaryPlot->id,
                         'person_name' => $person,
                         'amount'      => $request->patwari_amount[$i] ?? 0,
                         'note'        => $request->patwari_note[$i] ?? null,
@@ -93,13 +134,12 @@ class PlotController extends Controller
             }
         }
 
-        // Documents
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $i => $file) {
                 $path = $file->store('real-estate/documents', 'public');
                 RealEstateDocument::create([
                     'model_type'    => 'plot',
-                    'model_id'      => $plot->id,
+                    'model_id'      => $primaryPlot->id,
                     'document_name' => $request->document_names[$i] ?? $file->getClientOriginalName(),
                     'document_path' => $path,
                     'document_type' => $request->document_types[$i] ?? null,
@@ -107,36 +147,47 @@ class PlotController extends Controller
                 ]);
             }
         }
-        if ($plot->status == 'sold') {
+
+        // ===== IMPORTANT: transactions are recorded ONCE for the whole deal,
+        // never looped per plot, otherwise the amount would be double/triple
+        // counted in the bank ledger when a single Intiqal has multiple fields. =====
+
+        $fieldNumbersList = collect($createdPlots)->pluck('field_number')->implode(', ');
+
+        if ($anySold) {
             $this->recordPlotTransaction(
-                $plot,
+                $primaryPlot,
                 $request->bank_account_id,
-                (float) $plot->amount,
+                (float) $request->amount,
                 'credit',
                 'Plot Sale',
-                'Plot sale - Field #' . $plot->field_number . ' to ' . $plot->purchaser_name
+                'Plot sale - Field #' . $fieldNumbersList . ' to ' . $request->purchaser_name
             );
         }
 
         $this->recordPlotTransaction(
-            $plot,
+            $primaryPlot,
             $request->bank_account_id,
             (float) $request->agent_commission,
             'debit',
             'Agent Commission',
-            'Commission - ' . ($request->agent_name ?? '') . ' (Field #' . $plot->field_number . ')'
+            'Commission - ' . ($request->agent_name ?? '') . ' (Field #' . $fieldNumbersList . ')'
         );
 
         $this->recordPlotTransaction(
-            $plot,
+            $primaryPlot,
             $request->bank_account_id,
             (float) $request->patwari_total,
             'debit',
             'Patwari Expense',
-            'Patwari expenses (Field #' . $plot->field_number . ')'
+            'Patwari expenses (Field #' . $fieldNumbersList . ')'
         );
 
-        return redirect()->route('plot.index')->with('success', __('Plot added successfully.'));
+        $count = count($createdPlots);
+
+        return redirect()->route('plot.index')->with('success', $count > 1
+            ? "{$count} Plots added successfully under Intiqal No. {$request->intiqal_no}."
+            : __('Plot added successfully.'));
     }
 
     public function show($id)
@@ -159,27 +210,30 @@ class PlotController extends Controller
         $plot = Plot::where('created_by', Auth::user()->creatorId())->findOrFail($id);
 
         $plot->update([
-            'field_number'         => $request->field_number,
-            'intiqal_no'           => $request->intiqal_no,
-            'area_quantity'        => $request->area_quantity,
-            'area_unit'            => $request->area_unit ?? 'Marla',
-            'amount'               => $request->amount,
-            'status'               => $request->status,
-            'latitude'             => $request->latitude,
-            'longitude'            => $request->longitude,
-            'purchaser_name'       => $request->purchaser_name,
-            'purchaser_cnic'       => $request->purchaser_cnic,
-            'purchaser_phone'      => $request->purchaser_phone,
-            'purchaser_address'    => $request->purchaser_address,
+            'field_number'          => $request->field_number,
+            'intiqal_no'            => $request->intiqal_no,
+            'area_acre'             => $request->area_acre ?? 0,
+            'area_kanal'            => $request->area_kanal ?? 0,
+            'area_marla'            => $request->area_marla ?? 0,
+            'area_quantity'         => $request->area_quantity,
+            'area_unit'             => $request->area_unit ?? 'Marla',
+            'amount'                => $request->amount,
+            'status'                => $request->status,
+            'latitude'              => $request->latitude,
+            'longitude'             => $request->longitude,
+            'purchaser_name'        => $request->purchaser_name,
+            'purchaser_cnic'        => $request->purchaser_cnic,
+            'purchaser_phone'       => $request->purchaser_phone,
+            'purchaser_address'     => $request->purchaser_address,
             'purchaser_father_name' => $request->purchaser_father_name,
-            'agent_name'           => $request->agent_name,
-            'agent_cnic'           => $request->agent_cnic,
-            'agent_phone'          => $request->agent_phone,
-            'agent_address'        => $request->agent_address,
-            'agent_commission'     => $request->agent_commission ?? 0,
-            'patwari_total'        => $request->patwari_total ?? 0,
-            'bank_account_id'      => $request->bank_account_id,
-            'notes'                => $request->notes,
+            'agent_name'            => $request->agent_name,
+            'agent_cnic'            => $request->agent_cnic,
+            'agent_phone'           => $request->agent_phone,
+            'agent_address'         => $request->agent_address,
+            'agent_commission'      => $request->agent_commission ?? 0,
+            'patwari_total'         => $request->patwari_total ?? 0,
+            'bank_account_id'       => $request->bank_account_id,
+            'notes'                 => $request->notes,
         ]);
 
         // Re-save patwari breakdown

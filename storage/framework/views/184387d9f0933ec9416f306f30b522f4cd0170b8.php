@@ -89,21 +89,6 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label"><?php echo e(__('Area Quantity')); ?> <span
-                                            class="text-danger">*</span></label>
-                                    <input type="text" name="area_quantity" class="form-control" required
-                                        value="<?php echo e(old('area_quantity', $plot->area_quantity)); ?>">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label class="form-label"><?php echo e(__('Area Unit')); ?></label>
-                                    <input type="text" name="area_unit" class="form-control"
-                                        value="<?php echo e(old('area_unit', $plot->area_unit)); ?>" placeholder="Marla">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
                                     <label class="form-label"><?php echo e(__('Amount (PKR)')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="amount" class="form-control" required
@@ -125,6 +110,54 @@
                                         readonly>
                                 </div>
                             </div>
+                        </div>
+
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <hr class="my-2">
+                                <label class="form-label mb-1"><strong><?php echo e(__('Land Area')); ?></strong> <span
+                                        class="text-danger">*</span>
+                                    <small class="text-muted">(<?php echo e(__('enter in any combination')); ?>)</small>
+                                </label>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label small"><?php echo e(__('Acre')); ?></label>
+                                    <input type="number" min="0" step="1" name="area_acre" id="area_acre"
+                                        class="form-control area-part-input"
+                                        value="<?php echo e(old('area_acre', $plot->area_acre ?? 0)); ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label small"><?php echo e(__('Kanal')); ?></label>
+                                    <input type="number" min="0" max="7" step="1" name="area_kanal"
+                                        id="area_kanal" class="form-control area-part-input"
+                                        value="<?php echo e(old('area_kanal', $plot->area_kanal ?? 0)); ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-3">
+                                    <label class="form-label small"><?php echo e(__('Marla')); ?></label>
+                                    <input type="number" min="0" max="19" step="1"
+                                        name="area_marla" id="area_marla" class="form-control area-part-input"
+                                        value="<?php echo e(old('area_marla', $plot->area_marla ?? 0)); ?>">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label class="form-label small"><?php echo e(__('Total (in Marla)')); ?></label>
+                                    <input type="text" id="total_marla_display" class="form-control bg-light" readonly
+                                        value="<?php echo e(old('area_quantity', $plot->area_quantity)); ?>">
+                                    <input type="hidden" name="area_quantity" id="area_quantity"
+                                        value="<?php echo e(old('area_quantity', $plot->area_quantity)); ?>">
+                                    <input type="hidden" name="area_unit" value="Marla">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-12 mb-3">
                                 <label class="form-label"><?php echo e(__('Field Location on Map')); ?></label>
                                 <div id="field-map-picker"></div>
@@ -433,6 +466,32 @@
                 if (e.target.matches('input[name="patwari_amount[]"]')) {
                     recalcPatwariTotal();
                 }
+            });
+
+            // ===== Land Area Conversion (Acre / Kanal / Marla -> Total Marla) =====
+            // Standard Pakistani revenue conversion: 1 Acre = 8 Kanal, 1 Kanal = 20 Marla
+            var MARLA_PER_KANAL = 20;
+            var KANAL_PER_ACRE = 8;
+
+            var acreInput = document.getElementById('area_acre');
+            var kanalInput = document.getElementById('area_kanal');
+            var marlaInput = document.getElementById('area_marla');
+            var totalDisplay = document.getElementById('total_marla_display');
+            var totalHidden = document.getElementById('area_quantity');
+
+            function calculateTotal() {
+                var acre = parseFloat(acreInput.value) || 0;
+                var kanal = parseFloat(kanalInput.value) || 0;
+                var marla = parseFloat(marlaInput.value) || 0;
+
+                var totalMarla = (acre * KANAL_PER_ACRE * MARLA_PER_KANAL) + (kanal * MARLA_PER_KANAL) + marla;
+
+                totalDisplay.value = totalMarla;
+                totalHidden.value = totalMarla;
+            }
+
+            [acreInput, kanalInput, marlaInput].forEach(function(input) {
+                input.addEventListener('input', calculateTotal);
             });
 
             // ======= Leaflet Map (replaces Google Maps) =======

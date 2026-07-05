@@ -571,6 +571,11 @@
                                     <a class="dash-link" href="<?php echo e(route('report.bill.summary')); ?>"><?php echo e(__('Bill Summary')); ?></a>
                                 </li>
                             <?php endif; ?>
+                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('cash flow report')): ?>
+                                <li class="dash-item <?php echo e((Request::route()->getName() == 'report.cash.flow') ? ' active' : ''); ?>">
+                                    <a class="dash-link" href="<?php echo e(route('report.cash.flow')); ?>"><?php echo e(__('Cash Flow')); ?></a>
+                                </li>
+                            <?php endif; ?>
                             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('stock report')): ?>
                                 <li class="dash-item <?php echo e((Request::route()->getName() == 'report.product.stock.report' ) ? ' active' : ''); ?>">
                                     <a class="dash-link" href="<?php echo e(route('report.product.stock.report')); ?>"><?php echo e(__('Product Stock')); ?></a>
