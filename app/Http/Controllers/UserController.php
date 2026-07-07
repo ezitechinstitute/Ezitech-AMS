@@ -98,6 +98,8 @@ class UserController extends Controller
                 $user['lang']       = !empty($default_language) ? $default_language->value : '';
                 $user['created_by'] = \Auth::user()->creatorId();
                 $user['plan']       = Plan::first()->id;
+                $user['phone']   = $request->phone;
+                $user['address'] = $request->address;
                 $user->save();
                 CustomField::saveData($user, $request->customField);
 

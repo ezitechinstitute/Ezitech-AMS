@@ -14,7 +14,7 @@
 @endsection
 @section('action-btn')
     <div class="float-end">
-        <a href="#" data-size="lg" data-url="{{ route('users.create') }}" data-ajax-popup="true"  data-bs-toggle="tooltip" title="{{__('Create New User')}}"  class="btn btn-sm btn-primary">
+        <a href="#" data-size="lg" data-url="{{ route('users.create') }}" data-ajax-popup="true"  data-bs-toggle="tooltip" title="{{__('Create New Company')}}"  class="btn btn-sm btn-primary">
             <i class="ti ti-plus"></i>
         </a>
     </div>
@@ -138,12 +138,12 @@
                 @endforeach
 
                 <div class="col-md-3">
-                    <a href="#" class="btn-addnew-project"  data-ajax-popup="true" data-size="lg" data-title="{{ __('Create New User') }}" data-url="{{route('users.create')}}">
+                    <a href="#" class="btn-addnew-project"  data-ajax-popup="true" data-size="lg" data-title="{{ __('Create New Company') }}" data-url="{{route('users.create')}}">
                         <div class="badge bg-primary proj-add-icon">
                             <i class="ti ti-plus"></i>
                         </div>
-                        <h6 class="mt-4 mb-2">{{ __('New User') }}</h6>
-                        <p class="text-muted text-center">{{ __('Click here to add New User') }}</p>
+                      <h6 class="mt-4 mb-2">{{ __('New Company') }}</h6>
+<p class="text-muted text-center">{{ __('Click here to add New Company') }}</p>
                     </a>
                 </div>
                 

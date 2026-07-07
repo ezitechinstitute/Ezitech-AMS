@@ -36,26 +36,41 @@
         @elseif(\Auth::user()->type == 'super admin')
             {!! Form::hidden('role', 'company', null,array('class' => 'form-control select','required'=>'required')) !!}
         @endif
-        <div class="col-md-6">
-            <div class="form-group">
-                {{Form::label('password',__('Password'),['class'=>'form-label'])}}
-                {{Form::password('password',array('class'=>'form-control','placeholder'=>__('Enter User Password'),'required'=>'required','minlength'=>"6"))}}
-                @error('password')
-                <small class="invalid-password" role="alert">
-                    <strong class="text-danger">{{ $message }}</strong>
-                </small>
-                @enderror
-            </div>
+    <div class="col-md-6">
+    <div class="form-group">
+        {{Form::label('password',__('Password'),['class'=>'form-label'])}}
+        <div class="input-group">
+            <input type="password" name="password" id="password"
+                class="form-control"
+                placeholder="{{__('Enter User Password')}}"
+                required minlength="6">
+            <span class="input-group-text" style="cursor:pointer"
+                onclick="var p=document.getElementById('password');var e=document.getElementById('eye-icon');if(p.type==='password'){p.type='text';e.classList.replace('ti-eye','ti-eye-off');}else{p.type='password';e.classList.replace('ti-eye-off','ti-eye');}">
+                <i class="ti ti-eye" id="eye-icon"></i>
+            </span>
         </div>
-        @if(!$customFields->isEmpty())
-            <div class="col-md-6">
-                <div class="tab-pane fade show" id="tab-2" role="tabpanel">
-                    @include('customFields.formBuilder')
-                </div>
-            </div>
-        @endif
+        @error('password')
+        <small class="invalid-password" role="alert">
+            <strong class="text-danger">{{ $message }}</strong>
+        </small>
+        @enderror
     </div>
+</div>
 
+{{-- Phone --}}
+<div class="col-md-6">
+    <div class="form-group">
+        {{Form::label('phone',__('Phone No'),['class'=>'form-label'])}}
+        {{Form::text('phone',null,array('class'=>'form-control','placeholder'=>__('Enter Phone No')))}}
+    </div>
+</div>
+
+{{-- Address --}}
+<div class="col-md-6">
+    <div class="form-group">
+        {{Form::label('address',__('Address'),['class'=>'form-label'])}}
+        {{Form::text('address',null,array('class'=>'form-control','placeholder'=>__('Enter Address')))}}
+    </div>
 </div>
 
 <div class="modal-footer">

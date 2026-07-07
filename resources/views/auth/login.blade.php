@@ -43,14 +43,19 @@
             <div class="invalid-feedback" role="alert">{{ $message }}</div>
             @enderror
         </div>
-        <div class="form-group mb-3">
-            <label for="password" class="form-label">{{__('Password')}}</label>
-            <input class="form-control @error('password') is-invalid @enderror" id="password" type="password" name="password" required autocomplete="current-password">
-            @error('password')
-            <div class="invalid-feedback" role="alert">{{ $message }}</div>
-            @enderror
-
-        </div>
+       <div class="form-group mb-3">
+    <label for="password" class="form-label">{{__('Password')}}</label>
+    <div class="input-group">
+        <input class="form-control @error('password') is-invalid @enderror" id="password" type="password" name="password" required autocomplete="current-password">
+        <span class="input-group-text" style="cursor:pointer"
+            onclick="var p=document.getElementById('password');var e=document.getElementById('login-eye');if(p.type==='password'){p.type='text';e.classList.replace('ti-eye','ti-eye-off');}else{p.type='password';e.classList.replace('ti-eye-off','ti-eye');}">
+            <i class="ti ti-eye" id="login-eye"></i>
+        </span>
+    </div>
+    @error('password')
+    <div class="invalid-feedback" role="alert">{{ $message }}</div>
+    @enderror
+</div>
 
         @if(env('RECAPTCHA_MODULE') == 'yes')
             <div class="form-group mb-3">
