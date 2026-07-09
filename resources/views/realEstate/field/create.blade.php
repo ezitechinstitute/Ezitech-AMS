@@ -44,7 +44,7 @@
 @endpush
 
 @section('content')
-    <form action="{{ route('mouza.field.store', $mouza->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('mouza.field.store', $mouza->id) }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
         <div class="row">
 
@@ -67,11 +67,70 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Intiqal No.') }}</label>
+                                    <label class="form-label">{{ __('Mutation No.') }}</label>
                                     <input type="text" name="intiqal_no" class="form-control"
-                                        value="{{ old('intiqal_no') }}">
+                                        value="{{ old('intiqal_no', $mouza->intiqal_number) }}">
                                     <small
-                                        class="text-muted">{{ __('One Intiqal can have multiple Field Numbers.') }}</small>
+                                        class="text-muted">{{ __('One Mutation can have multiple Field Numbers.') }}</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label class="form-label">{{ __('Kiwat (Block/Phase)') }} <span
+                                            class="text-danger">*</span></label>
+                                    <select name="kiwat_id" id="kiwat_select" class="form-control" required>
+                                        <option value="">-- {{ __('Select Kiwat') }} --</option>
+                                        @foreach ($kiwats as $kiwat)
+                                            <option value="{{ $kiwat->id }}"
+                                                {{ old('kiwat_id') == $kiwat->id ? 'selected' : '' }}>
+                                                {{ $kiwat->kiwat_number }}
+                                            </option>
+                                        @endforeach
+                                        <option value="new" {{ old('kiwat_id') == 'new' ? 'selected' : '' }}>
+                                            + {{ __('Add New Kiwat') }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Inline New Kiwat fields — JS se show/hide honge --}}
+                            <div class="col-12" id="new-kiwat-fields" style="display:none;">
+                                <div class="alert alert-light border mb-3">
+                                    <h6 class="mb-3"><i class="ti ti-stack"></i> {{ __('New Kiwat Details') }}</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Kiwat Number') }} <span
+                                                        class="text-danger">*</span></label>
+                                                <input type="text" name="new_kiwat_number" id="new_kiwat_number"
+                                                    class="form-control" value="{{ old('new_kiwat_number') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Total Area') }}</label>
+                                                <input type="text" name="new_kiwat_total_area" class="form-control"
+                                                    value="{{ old('new_kiwat_total_area') }}" placeholder="e.g. 25">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Unit') }}</label>
+                                                <select name="new_kiwat_total_area_unit" class="form-control">
+                                                    <option value="Kanal">Kanal</option>
+                                                    <option value="Marla">Marla</option>
+                                                    <option value="Acre">Acre</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Description') }}</label>
+                                                <input type="text" name="new_kiwat_description" class="form-control"
+                                                    value="{{ old('new_kiwat_description') }}">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -107,7 +166,8 @@
                                     <div class="form-group mb-2">
                                         <label class="form-label">{{ __('Field Number') }} <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" name="fields[0][field_number]" class="form-control" required>
+                                        <input type="text" name="fields[0][field_number]" class="form-control"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
@@ -123,7 +183,8 @@
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
                                         <label class="form-label">{{ __('Map Location') }}</label>
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn"
+                                        <button type="button"
+                                            class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn"
                                             onclick="setActiveRow(this)">
                                             <i class="ti ti-map-pin"></i> <span
                                                 class="pin-status">{{ __('Not set - click to pick') }}</span>
@@ -276,7 +337,8 @@
                             <input type="number" name="patwari_total" id="patwari_total" class="form-control"
                                 step="0.01" value="{{ old('patwari_total', 0) }}">
                         </div>
-                        <label class="form-label"><strong>{{ __('Breakdown (Kisi ko kitna diya)') }}</strong></label>
+                        <label
+                            class="form-label"><strong>{{ __('Breakdown (Amount Paid to Each Person)') }}</strong></label>
                         <div class="table-responsive">
                             <table class="table table-bordered" id="patwari-table">
                                 <thead class="table-light">
@@ -353,7 +415,7 @@
                                     <select name="document_types[]" class="form-control form-control-sm">
                                         <option value="">-- Type --</option>
                                         <option value="Fard">Fard</option>
-                                        <option value="Intiqal">Intiqal</option>
+                                        <option value="Intiqal">Mutation</option>
                                         <option value="Registry">Registry</option>
                                         <option value="CNIC Copy">CNIC Copy</option>
                                         <option value="Other">Other</option>
@@ -516,7 +578,10 @@
                     <div class="col-md-2">
                         <div class="form-group mb-2">
                             <label class="form-label small">{{ __('Kanal') }}</label>
-                            <input type="number" min="0" max="7" step="1" name="fields[${idx}][area_kanal]" class="form-control area-part-input" value="0">
+                            <input type="number" min="0" max="7" step="1" name="fields[${idx}][area_kanal]" 
+                                class="form-control area-part-input" value="0"
+                                oninvalid="this.setCustomValidity('Kanal value must be between 0 and 7 (8 Kanal = 1 Acre)')"
+                                oninput="this.setCustomValidity('')">
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -623,5 +688,44 @@
 
             updateRemoveButtons();
         })();
+    </script>
+    <script>
+        // ================= Form Validation Before Submit =================
+        document.querySelector('form').addEventListener('submit', function(e) {
+            console.log('Form submit triggered');
+            var isValid = true;
+            var errorMessages = [];
+
+            document.querySelectorAll('.field-row').forEach(function(row, i) {
+                var kanalInput = row.querySelector('[name*="[area_kanal]"]');
+                var marlaInput = row.querySelector('[name*="[area_marla]"]');
+
+                var kanal = parseFloat(kanalInput.value) || 0;
+                var marla = parseFloat(marlaInput.value) || 0;
+
+                if (kanal < 0 || kanal > 7) {
+                    isValid = false;
+                    kanalInput.classList.add('is-invalid');
+                    errorMessages.push(
+                        `Field #${i + 1}: Kanal value must be between 0 and 7 (8 Kanal = 1 Acre).`);
+                } else {
+                    kanalInput.classList.remove('is-invalid');
+                }
+
+                if (marla < 0 || marla > 19) {
+                    isValid = false;
+                    marlaInput.classList.add('is-invalid');
+                    errorMessages.push(
+                        `Field #${i + 1}: Marla value must be between 0 and 19 (20 Marla = 1 Kanal).`);
+                } else {
+                    marlaInput.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert(errorMessages.join('\n'));
+            }
+        });
     </script>
 @endpush

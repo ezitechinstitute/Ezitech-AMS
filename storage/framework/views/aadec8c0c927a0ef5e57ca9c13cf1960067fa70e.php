@@ -57,7 +57,38 @@
 <?php $__env->startSection('content'); ?>
     <form action="<?php echo e(route('plot.store')); ?>" method="POST" enctype="multipart/form-data">
         <?php echo csrf_field(); ?>
-        <input type="hidden" name="mouza_id" value="<?php echo e($mouza->id ?? ''); ?>">
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-label"><?php echo e(__('Mouza')); ?> <span class="text-danger">*</span></label>
+                    <select name="mouza_id" id="mouza-select" class="form-control" required>
+                        <option value="">-- <?php echo e(__('Select Mouza')); ?> --</option>
+                        <?php $__currentLoopData = $mouzas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($m->id); ?>"
+                                <?php echo e(old('mouza_id', $mouza->id ?? '') == $m->id ? 'selected' : ''); ?>>
+                                <?php echo e($m->name); ?>
+
+                            </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="form-label"><?php echo e(__('Kiwat (Block/Phase)')); ?> <span class="text-danger">*</span></label>
+                    <select name="kiwat_id" id="kiwat-select" class="form-control" required>
+                        <option value="">-- <?php echo e(__('Select Kiwat')); ?> --</option>
+                        <?php $__currentLoopData = $kiwats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($k->id); ?>" <?php echo e(old('kiwat_id') == $k->id ? 'selected' : ''); ?>>
+                                <?php echo e($k->kiwat_number); ?>
+
+                            </option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="row">
 
             
@@ -123,6 +154,16 @@
                                         <input type="text" name="fields[0][field_number]" class="form-control" required>
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label"><?php echo e(__('Khasra No.')); ?></label>
+                                        <select name="fields[0][khasra_id]" class="form-control khasra-select"
+                                            data-index="0">
+                                            <option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>
+                                        </select>
+                                        <small class="text-muted"><?php echo e(__('Select Kiwat above first')); ?></small>
+                                    </div>
+                                </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
                                         <label class="form-label"><?php echo e(__('Status')); ?></label>
@@ -136,7 +177,8 @@
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
                                         <label class="form-label"><?php echo e(__('Map Location')); ?></label>
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn"
+                                        <button type="button"
+                                            class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn"
                                             onclick="setActiveRow(this)">
                                             <i class="ti ti-map-pin"></i> <span
                                                 class="pin-status"><?php echo e(__('Not set - click to pick')); ?></span>
@@ -417,6 +459,71 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        var currentKiwatId = document.getElementById('kiwat-select').value;
+        if (currentKiwatId) {
+            fetch(`<?php echo e(url('/plot/khasras-by-kiwat')); ?>/${currentKiwatId}`)
+                .then(res => res.json())
+                .then(khasras => {
+                    var newSelect = document.querySelector('.field-row[data-index="' + idx + '"] .khasra-select');
+                    khasras.forEach(function(kh) {
+                        var opt = document.createElement('option');
+                        opt.value = kh.id;
+                        opt.textContent = kh.field_number + ' (' + kh.status + ')';
+                        newSelect.appendChild(opt);
+                    });
+                });
+        }
+        document.getElementById('mouza-select').addEventListener('change', function() {
+            var mouzaId = this.value;
+            var kiwatSelect = document.getElementById('kiwat-select');
+            kiwatSelect.innerHTML = '<option value="">-- <?php echo e(__('Select Kiwat')); ?> --</option>';
+            clearAllKhasraDropdowns();
+
+            if (!mouzaId) return;
+
+            fetch(`/mouza/${mouzaId}/kiwats-json`)
+                .then(res => res.json())
+                .then(kiwats => {
+                    kiwats.forEach(function(k) {
+                        var opt = document.createElement('option');
+                        opt.value = k.id;
+                        opt.textContent = k.kiwat_number;
+                        kiwatSelect.appendChild(opt);
+                    });
+                });
+        });
+
+        document.getElementById('kiwat-select').addEventListener('change', function() {
+            loadKhasrasForAllRows(this.value);
+        });
+
+        function loadKhasrasForAllRows(kiwatId) {
+            var selects = document.querySelectorAll('.khasra-select');
+            selects.forEach(function(sel) {
+                sel.innerHTML = '<option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>';
+            });
+
+            if (!kiwatId) return;
+
+            fetch(`<?php echo e(url('/plot/khasras-by-kiwat')); ?>/${kiwatId}`)
+                .then(res => res.json())
+                .then(khasras => {
+                    selects.forEach(function(sel) {
+                        khasras.forEach(function(kh) {
+                            var opt = document.createElement('option');
+                            opt.value = kh.id;
+                            opt.textContent = kh.field_number + ' (' + kh.status + ')';
+                            sel.appendChild(opt);
+                        });
+                    });
+                });
+        }
+
+        function clearAllKhasraDropdowns() {
+            document.querySelectorAll('.khasra-select').forEach(function(sel) {
+                sel.innerHTML = '<option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>';
+            });
+        }
         // ================= Patwari rows =================
         function addPatwariRow() {
             var html = '<tr>' +
@@ -489,6 +596,14 @@
                             <input type="text" name="fields[${idx}][field_number]" class="form-control" required>
                         </div>
                     </div>
+                    <div class="col-md-3">
+    <div class="form-group mb-2">
+        <label class="form-label"><?php echo e(__('Khasra No.')); ?></label>
+        <select name="fields[${idx}][khasra_id]" class="form-control khasra-select" data-index="${idx}">
+            <option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>
+        </select>
+    </div>
+</div>
                     <div class="col-md-2">
                         <div class="form-group mb-2">
                             <label class="form-label"><?php echo e(__('Status')); ?></label>

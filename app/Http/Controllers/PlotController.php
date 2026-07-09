@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
+use App\Models\Kiwat;
 use App\Models\Mouza;
 use App\Models\PatwariExpense;
 use App\Models\Plot;
@@ -26,31 +27,50 @@ class PlotController extends Controller
         return view('realEstate.plot.index', compact('plots'));
     }
 
-    // public function create()
+    // public function create(Request $request)
     // {
+    //     $mouzas = Mouza::where('created_by', Auth::user()->creatorId())->get();
+
+    //     // Mouza page ke "Add Plot" button se aya ho to pre-select
+    //     $mouza = $request->mouza_id ? Mouza::find($request->mouza_id) : null;
+
+    //     // Kiwat dropdown - agar mouza pre-selected hai to us mouza ke Kiwats hi load karo
+    //     $kiwats = $request->mouza_id
+    //         ? Kiwat::where('mouza_id', $request->mouza_id)->where('created_by', Auth::user()->creatorId())->get()
+    //         : collect();
+
     //     $bankAccounts = BankAccount::where('created_by', Auth::user()->creatorId())->get();
-    //     return view('realEstate.plot.create', compact('bankAccounts'));
+
+    //     return view('realEstate.plot.create', compact('mouzas', 'mouza', 'kiwats', 'bankAccounts'));
     // }
     public function create(Request $request)
     {
         $mouzas = Mouza::where('created_by', Auth::user()->creatorId())->get();
-
-        // Mouza page ke "Add Plot" button se aya ho to pre-select
         $mouza = $request->mouza_id ? Mouza::find($request->mouza_id) : null;
+
+        $kiwats = $request->mouza_id
+            ? Kiwat::where('mouza_id', $request->mouza_id)->where('created_by', Auth::user()->creatorId())->get()
+            : collect();
+
+        // Naya: Khasra dropdown (agar kiwat pre-selected ho)
+        $khasras = $request->kiwat_id
+            ? \App\Models\RealEstateField::where('kiwat_id', $request->kiwat_id)->where('created_by', Auth::user()->creatorId())->get()
+            : collect();
 
         $bankAccounts = BankAccount::where('created_by', Auth::user()->creatorId())->get();
 
-        return view('realEstate.plot.create', compact('mouzas', 'mouza', 'bankAccounts'));
+        return view('realEstate.plot.create', compact('mouzas', 'mouza', 'kiwats', 'khasras', 'bankAccounts'));
     }
-
-
 
     public function store(Request $request)
     {
         $request->validate([
+            'mouza_id'       => 'required|exists:mouzas,id',
+            'kiwat_id'       => 'required|exists:kiwats,id',
             'intiqal_no'     => 'nullable|string|max:255',
             'amount'         => 'required|numeric',
             'purchaser_name' => 'required|string|max:255',
+            'khasra_id' => 'nullable|exists:real_estate_fields,id',
 
             'fields'                    => 'required|array|min:1',
             'fields.*.field_number'     => 'required|string|distinct|unique:plots,field_number',
@@ -65,7 +85,13 @@ class PlotController extends Controller
             'fields.*.field_number.unique'   => 'Field Number :input already exists.',
             'fields.*.field_number.distinct' => 'Duplicate Field Numbers are not allowed in the same submission.',
             'fields.*.total_marla.required'  => 'Please enter a valid Land Area (Acre/Kanal/Marla) for every field.',
+            'kiwat_id.required'              => 'Please select a Kiwat (Block/Phase) for this Mouza.',
         ]);
+
+        // Make sure the chosen Kiwat actually belongs to the chosen Mouza
+        $kiwat = Kiwat::where('id', $request->kiwat_id)
+            ->where('mouza_id', $request->mouza_id)
+            ->firstOrFail();
 
         $createdPlots = [];
         $anySold      = false;
@@ -73,8 +99,10 @@ class PlotController extends Controller
         foreach ($request->fields as $fieldData) {
             $plot = Plot::create([
                 'mouza_id'              => $request->mouza_id,
+                'kiwat_id'              => $kiwat->id,
                 'field_number'          => $fieldData['field_number'],
                 'intiqal_no'            => $request->intiqal_no,
+                'khasra_id' => $fieldData['khasra_id'] ?? $request->khasra_id ?? null,
 
                 // Normalized total (in Marla)
                 'area_quantity'         => $fieldData['total_marla'],
@@ -186,13 +214,13 @@ class PlotController extends Controller
         $count = count($createdPlots);
 
         return redirect()->route('plot.index')->with('success', $count > 1
-            ? "{$count} Plots added successfully under Intiqal No. {$request->intiqal_no}."
+            ? "{$count} Plots added successfully under Kiwat {$kiwat->kiwat_number} / Intiqal No. {$request->intiqal_no}."
             : __('Plot added successfully.'));
     }
 
     public function show($id)
     {
-        $plot = Plot::with(['bankAccount', 'patwariExpenses', 'documents'])
+        $plot = Plot::with(['bankAccount', 'patwariExpenses', 'documents', 'kiwat', 'mouza'])
             ->where('created_by', Auth::user()->creatorId())
             ->findOrFail($id);
         return view('realEstate.plot.show', compact('plot'));
@@ -202,14 +230,31 @@ class PlotController extends Controller
     {
         $plot         = Plot::where('created_by', Auth::user()->creatorId())->findOrFail($id);
         $bankAccounts = BankAccount::where('created_by', Auth::user()->creatorId())->get();
-        return view('realEstate.plot.edit', compact('plot', 'bankAccounts'));
+        $mouzas       = Mouza::where('created_by', Auth::user()->creatorId())->get();
+        $kiwats       = Kiwat::where('mouza_id', $plot->mouza_id)
+            ->where('created_by', Auth::user()->creatorId())
+            ->get();
+
+        return view('realEstate.plot.edit', compact('plot', 'bankAccounts', 'mouzas', 'kiwats'));
     }
 
     public function update(Request $request, $id)
     {
         $plot = Plot::where('created_by', Auth::user()->creatorId())->findOrFail($id);
 
+        $request->validate([
+            'mouza_id' => 'required|exists:mouzas,id',
+            'kiwat_id' => 'required|exists:kiwats,id',
+        ]);
+
+        // Make sure the chosen Kiwat actually belongs to the chosen Mouza
+        Kiwat::where('id', $request->kiwat_id)
+            ->where('mouza_id', $request->mouza_id)
+            ->firstOrFail();
+
         $plot->update([
+            'mouza_id'              => $request->mouza_id,
+            'kiwat_id'              => $request->kiwat_id,
             'field_number'          => $request->field_number,
             'intiqal_no'            => $request->intiqal_no,
             'area_acre'             => $request->area_acre ?? 0,
@@ -285,12 +330,10 @@ class PlotController extends Controller
         $plots = Plot::where('created_by', Auth::user()->creatorId())
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->get(['id', 'field_number', 'purchaser_name', 'area_quantity', 'area_unit', 'amount', 'status', 'latitude', 'longitude', 'intiqal_no']);
+            ->get(['id', 'field_number', 'purchaser_name', 'area_quantity', 'area_unit', 'amount', 'status', 'latitude', 'longitude', 'intiqal_no', 'kiwat_id']);
 
         return response()->json($plots);
     }
-
-
 
     private function recordPlotTransaction($plot, $bankAccountId, $amount, $direction, $category, $description)
     {
@@ -314,5 +357,13 @@ class PlotController extends Controller
             'payment_id'  => $plot->id,
             'category'    => $category,
         ]);
+    }
+    public function khasrasByKiwat($kiwat_id)
+    {
+        $khasras = \App\Models\RealEstateField::where('kiwat_id', $kiwat_id)
+            ->where('created_by', Auth::user()->creatorId())
+            ->get(['id', 'field_number', 'seller_name', 'status']);
+
+        return response()->json($khasras);
     }
 }

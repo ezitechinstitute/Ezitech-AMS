@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Plot extends Model
 {
     protected $fillable = [
+        'mouza_id',
+        'kiwat_id',
         'field_number',
         'intiqal_no',
         'area_quantity',
         'area_unit',
+        'area_acre',
+        'area_kanal',
+        'area_marla',
         'amount',
         'status',
         'latitude',
@@ -31,6 +36,16 @@ class Plot extends Model
         'created_by',
     ];
 
+    public function mouza()
+    {
+        return $this->belongsTo(Mouza::class);
+    }
+
+    public function kiwat()
+    {
+        return $this->belongsTo(Kiwat::class);
+    }
+
     public function bankAccount()
     {
         return $this->belongsTo(BankAccount::class, 'bank_account_id');
@@ -44,5 +59,9 @@ class Plot extends Model
     public function documents()
     {
         return $this->morphMany(RealEstateDocument::class, 'model');
+    }
+    public function khasra()
+    {
+        return $this->belongsTo(RealEstateField::class, 'khasra_id');
     }
 }

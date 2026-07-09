@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Kiwat;
+use App\Models\RealEstateField;
+use App\Models\RealEstateDocument;
 use Illuminate\Database\Eloquent\Model;
 
 class Mouza extends Model
@@ -16,6 +19,9 @@ class Mouza extends Model
         'intiqal_number',
         'intiqal_date',
         'total_area',
+        'area_acre',
+        'area_kanal',
+        'area_marla',
         'total_area_unit',
         'created_by',
     ];
@@ -38,5 +44,18 @@ class Mouza extends Model
     public function documents()
     {
         return $this->morphMany(RealEstateDocument::class, 'model');
+    }
+    public function kiwats()
+    {
+        return $this->hasMany(Kiwat::class);
+    }
+    public function getAreaDisplayAttribute()
+    {
+        $parts = [];
+        if ($this->area_acre > 0)  $parts[] = $this->area_acre . ' Acre';
+        if ($this->area_kanal > 0) $parts[] = $this->area_kanal . ' Kanal';
+        if ($this->area_marla > 0) $parts[] = $this->area_marla . ' Marla';
+
+        return $parts ? implode(', ', $parts) : '-';
     }
 }

@@ -51,4 +51,12 @@ class RealEstateField extends Model
     {
         return $this->morphMany(RealEstateDocument::class, 'model');
     }
+    public function kiwat()
+    {
+        return $this->belongsTo(Kiwat::class);
+    }
+    public function plots()
+    {
+        return $this->hasMany(Plot::class, 'khasra_id');
+    }
 }

@@ -9,6 +9,9 @@
 @endsection
 @section('action-btn')
     <div class="float-end">
+        <a href="{{ route('mouza.kiwat.create', $mouza->id) }}" class="btn btn-sm btn-primary">
+            <i class="ti ti-plus"></i> {{ __('Add Kiwat') }}
+        </a>
         <a href="{{ route('mouza.field.create', $mouza->id) }}" class="btn btn-sm btn-success">
             <i class="ti ti-plus"></i> {{ __('Add Khait (Field)') }}
         </a>
@@ -41,6 +44,7 @@
                     <p><strong>{{ __('District') }}:</strong> {{ $mouza->district ?? '-' }}</p>
                     <p><strong>{{ __('Tehsil') }}:</strong> {{ $mouza->tehsil ?? '-' }}</p>
                     <p><strong>{{ __('Description') }}:</strong> {{ $mouza->description ?? '-' }}</p>
+                    <p><strong>{{ __('Total Area') }}:</strong> {{ $mouza->area_display }}</p>
                     <hr>
                     <div class="row text-center">
                         <div class="col-4">
@@ -73,6 +77,67 @@
                 </div>
                 <div class="card-body p-0">
                     <div id="mouza-map"></div>
+                </div>
+            </div>
+        </div>
+        {{-- Kiwats Table --}}
+        <div class="col-12 mt-3">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="ti ti-stack"></i> {{ __('Kiwats (Blocks / Phases)') }}</h5>
+                    <a href="{{ route('mouza.kiwat.create', $mouza->id) }}" class="btn btn-sm btn-primary">
+                        <i class="ti ti-plus"></i> {{ __('Add Kiwat') }}
+                    </a>
+                </div>
+                <div class="card-body table-border-style">
+                    <div class="table-responsive">
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('Kiwat Number') }}</th>
+                                    <th>{{ __('Description') }}</th>
+                                    <th>{{ __('Total Area') }}</th>
+                                    <th>{{ __('Fields') }}</th>
+                                    <th>{{ __('Plots') }}</th>
+                                    <th>{{ __('Action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($kiwats as $kiwat)
+                                    <tr>
+                                        <td><strong>{{ $kiwat->kiwat_number }}</strong></td>
+                                        <td>{{ $kiwat->description ?? '-' }}</td>
+                                        <td>{{ $kiwat->total_area ? $kiwat->total_area . ' ' . $kiwat->total_area_unit : '-' }}
+                                        </td>
+                                        <td><span class="badge bg-info">{{ $kiwat->fields_count }}</span></td>
+                                        <td><span class="badge bg-secondary">{{ $kiwat->plots_count }}</span></td>
+                                        <td>
+                                            <a href="{{ route('kiwat.show', $kiwat->id) }}" class="btn btn-sm btn-info">
+                                                <i class="ti ti-eye"></i>
+                                            </a>
+                                            <a href="{{ route('kiwat.edit', $kiwat->id) }}" class="btn btn-sm btn-warning">
+                                                <i class="ti ti-pencil"></i>
+                                            </a>
+                                            <form action="{{ route('kiwat.destroy', $kiwat->id) }}" method="POST"
+                                                class="d-inline" onsubmit="return confirm('Delete this Kiwat?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger"><i class="ti ti-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            {{ __('No Kiwats added yet.') }}
+                                            <a
+                                                href="{{ route('mouza.kiwat.create', $mouza->id) }}">{{ __('Add First Kiwat') }}</a>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,12 +226,10 @@
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            // Mouza center marker (blue pin)
             L.marker([centerLat, centerLng])
                 .addTo(map)
                 .bindPopup('<strong>{{ $mouza->name }}</strong>');
 
-            // Khait circles (red = available, green = sold)
             mapFields.forEach(function(field) {
                 if (!field.lat || !field.lng) return;
 
@@ -195,6 +258,30 @@
 
                 circle.bindPopup(content);
             });
+
+            // ===== Highlight logic (ab isi function ke andar hai) =====
+            var params = new URLSearchParams(window.location.search);
+            var highlightId = params.get('highlight');
+
+            if (highlightId) {
+                var target = mapFields.find(function(f) {
+                    return String(f.id) === highlightId;
+                });
+
+                if (target && target.lat && target.lng) {
+                    map.setView([parseFloat(target.lat), parseFloat(target.lng)], 17);
+
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.Circle) {
+                            var pos = layer.getLatLng();
+                            if (Math.abs(pos.lat - target.lat) < 0.0001 && Math.abs(pos.lng - target.lng) <
+                                0.0001) {
+                                layer.openPopup();
+                            }
+                        }
+                    });
+                }
+            }
         })();
     </script>
 @endpush

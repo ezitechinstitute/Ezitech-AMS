@@ -89,29 +89,28 @@
                                                     value="{{ old('intiqal_date', $mouza->intiqal_date) }}">
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Total Area') }}</label>
-                                                <input type="text" name="total_area" class="form-control"
-                                                    value="{{ old('total_area', $mouza->total_area) }}"
-                                                    placeholder="e.g. 25">
+                                                <label class="form-label">{{ __('Acre') }}</label>
+                                                <input type="number" step="0.01" min="0" name="area_acre"
+                                                    class="form-control" value="{{ old('area_acre', $mouza->area_acre) }}"
+                                                    placeholder="0">
                                             </div>
                                         </div>
-                                        <div class="col-md-2">
+                                        <div class="col-md-4">
                                             <div class="form-group mb-3 mb-md-0">
-                                                <label class="form-label">{{ __('Unit') }}</label>
-                                                <select name="total_area_unit" class="form-control">
-                                                    <option value="Kanal"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Kanal' ? 'selected' : '' }}>
-                                                        Kanal</option>
-                                                    <option value="Marla"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Marla' ? 'selected' : '' }}>
-                                                        Marla</option>
-                                                    <option value="Acre"
-                                                        {{ old('total_area_unit', $mouza->total_area_unit) == 'Acre' ? 'selected' : '' }}>
-                                                        Acre
-                                                    </option>
-                                                </select>
+                                                <label class="form-label">{{ __('Kanal') }}</label>
+                                                <input type="number" step="0.01" min="0" name="area_kanal"
+                                                    class="form-control"
+                                                    value="{{ old('area_kanal', $mouza->area_kanal) }}" placeholder="0">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group mb-3 mb-md-0">
+                                                <label class="form-label">{{ __('Marla') }}</label>
+                                                <input type="number" step="0.01" min="0" name="area_marla"
+                                                    class="form-control"
+                                                    value="{{ old('area_marla', $mouza->area_marla) }}" placeholder="0">
                                             </div>
                                         </div>
                                     </div>

@@ -39,8 +39,10 @@ use App\Http\Controllers\SystemController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenderController;
+use App\Http\Controllers\KiwatController;
 use App\Models\Utility;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KhasraSearchController;
 
 
 /*
@@ -777,7 +779,6 @@ Route::group(['middleware' => ['verified']], function () {
             Route::get('report/trial-balance', [ReportController::class, 'trialBalanceSummary'])->name('trial.balance');
 
             Route::get('report/cash-flow', [ReportController::class, 'cashFlow'])->name('report.cash.flow');
-
         }
     );
     Route::get('/apply-coupon', [CouponController::class, 'applyCoupon'])->name('apply.coupon')->middleware(['auth', 'XSS', 'revalidate']);
@@ -1017,36 +1018,43 @@ Route::prefix('mouza')->name('mouza.')->group(function () {
     Route::delete('/{id}', [MouzaController::class, 'destroy'])->name('destroy');
 
     // ===================== KHAIT (FIELD) CRUD =====================
-    // NOTE: '/field/...' prefix taake mouza '/{id}' route se clash na ho
     Route::get('/{mouza_id}/field/create', [MouzaController::class, 'fieldCreate'])->name('field.create');
     Route::post('/{mouza_id}/field', [MouzaController::class, 'fieldStore'])->name('field.store');
-
     Route::get('/field/{id}', [MouzaController::class, 'fieldShow'])->name('field.show');
     Route::get('/field/{id}/edit', [MouzaController::class, 'fieldEdit'])->name('field.edit');
     Route::put('/field/{id}', [MouzaController::class, 'fieldUpdate'])->name('field.update');
     Route::delete('/field/{id}', [MouzaController::class, 'fieldDestroy'])->name('field.destroy');
+
+    // ===================== KIWAT (BLOCK/PHASE) CRUD =====================
+    Route::get('/{mouza_id}/kiwat', [KiwatController::class, 'index'])->name('kiwat.index');
+    Route::get('/{mouza_id}/kiwat/create', [KiwatController::class, 'create'])->name('kiwat.create');
+    Route::post('/{mouza_id}/kiwat', [KiwatController::class, 'store'])->name('kiwat.store');
+    Route::get('/{mouza_id}/kiwats-json', [KiwatController::class, 'byMouza'])->name('kiwats.json');
 });
 
+Route::get('/kiwat/{id}', [KiwatController::class, 'show'])->name('kiwat.show');
+Route::get('/kiwat/{id}/edit', [KiwatController::class, 'edit'])->name('kiwat.edit');
+Route::put('/kiwat/{id}', [KiwatController::class, 'update'])->name('kiwat.update');
+Route::delete('/kiwat/{id}', [KiwatController::class, 'destroy'])->name('kiwat.destroy');
+Route::get('khasra-search', [KhasraSearchController::class, 'index'])->name('khasra.search');
+Route::get('khasra-search/data', [KhasraSearchController::class, 'data'])->name('khasra.search.data');
+
 // ===================== SHARED: DOCUMENT DELETE =====================
-// Field-detail blade mein yeh route pehle se use ho raha hai: real.estate.document.delete
 Route::delete('/real-estate/document/{id}', [MouzaController::class, 'deleteDocument'])
     ->name('real.estate.document.delete');
 
 Route::prefix('plot')->name('plot.')->group(function () {
-
-    // ===================== PLOT CRUD =====================
     Route::get('/', [PlotController::class, 'index'])->name('index');
     Route::get('/create', [PlotController::class, 'create'])->name('create');
     Route::post('/', [PlotController::class, 'store'])->name('store');
-
-    // Map data (JSON) for plots - agar Plot listing pe bhi map dikhana ho
     Route::get('/map-data', [PlotController::class, 'mapData'])->name('map-data');
-
     Route::get('/{id}', [PlotController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [PlotController::class, 'edit'])->name('edit');
     Route::put('/{id}', [PlotController::class, 'update'])->name('update');
     Route::delete('/{id}', [PlotController::class, 'destroy'])->name('destroy');
+    Route::get('/khasras-by-kiwat/{kiwat_id}', [PlotController::class, 'khasrasByKiwat'])->name('khasras.byKiwat');
 });
+
 if (!Route::has('real.estate.document.delete')) {
     Route::get('/real-estate/document/{id}/delete', [MouzaController::class, 'deleteDocument'])
         ->name('real.estate.document.delete');
