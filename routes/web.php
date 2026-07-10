@@ -1048,11 +1048,20 @@ Route::prefix('plot')->name('plot.')->group(function () {
     Route::get('/create', [PlotController::class, 'create'])->name('create');
     Route::post('/', [PlotController::class, 'store'])->name('store');
     Route::get('/map-data', [PlotController::class, 'mapData'])->name('map-data');
+
+    // Inventory
+    Route::get('/inventory', [PlotController::class, 'inventory'])->name('inventory');
+    Route::get('/inventory/{mouza_id}', [PlotController::class, 'inventoryArea'])->name('inventory.area');
+    Route::get('/inventory/{mouza_id}/data', [PlotController::class, 'inventoryData'])->name('inventory.data');
+
+    // ⬇️ YE {id} SE UPAR AANI CHAHIYE
+    Route::get('/khasras-by-kiwat/{kiwat_id}', [PlotController::class, 'khasrasByKiwat'])->name('khasras.byKiwat');
+
+    // {id} wali sabse neeche
     Route::get('/{id}', [PlotController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [PlotController::class, 'edit'])->name('edit');
     Route::put('/{id}', [PlotController::class, 'update'])->name('update');
     Route::delete('/{id}', [PlotController::class, 'destroy'])->name('destroy');
-    Route::get('/khasras-by-kiwat/{kiwat_id}', [PlotController::class, 'khasrasByKiwat'])->name('khasras.byKiwat');
 });
 
 if (!Route::has('real.estate.document.delete')) {

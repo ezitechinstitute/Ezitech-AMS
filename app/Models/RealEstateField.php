@@ -10,6 +10,7 @@ class RealEstateField extends Model
         'mouza_id',
         'field_number',
         'intiqal_no',
+        'kiwat_id',
         'area_quantity',
         'area_unit',
         'amount',

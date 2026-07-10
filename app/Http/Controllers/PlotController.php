@@ -366,4 +366,100 @@ class PlotController extends Controller
 
         return response()->json($khasras);
     }
+
+
+
+// ============================================================
+//  Add these 3 methods inside your existing PlotController
+// ============================================================
+
+    /**
+     * Page 1: Area list — sab Mouza jinme plots hain, plot counts ke saath.
+     */
+    public function inventory()
+    {
+        $mouzas = Mouza::where('created_by', Auth::user()->creatorId())
+            ->withCount([
+                'plots',
+                'plots as available_plots_count' => function ($q) {
+                    $q->where('status', 'available');
+                },
+                'plots as sold_plots_count' => function ($q) {
+                    $q->where('status', 'sold');
+                },
+            ])
+            ->having('plots_count', '>', 0)   // sirf wo areas jinme plots hain
+            ->get();
+
+        return view('realEstate.plot.inventory', compact('mouzas'));
+    }
+
+    /**
+     * Page 2: Ek area (Mouza) ke plots + Leaflet map.
+     * Table + search bar + map ek hi page pe.
+     */
+    public function inventoryArea($mouza_id)
+    {
+        $mouza = Mouza::where('created_by', Auth::user()->creatorId())->findOrFail($mouza_id);
+
+        $plots = Plot::where('mouza_id', $mouza_id)
+            ->where('created_by', Auth::user()->creatorId())
+            ->with('kiwat')
+            ->get();
+
+        // Map ke liye — sirf wo plots jinki location set hai
+        $mapPlots = $plots->map(function ($p) {
+            return [
+                'id'           => $p->id,
+                'lat'          => $p->latitude,
+                'lng'          => $p->longitude,
+                'status'       => $p->status,
+                'field_number' => $p->field_number,
+                'kiwat_number' => $p->kiwat->kiwat_number ?? '-',
+                'purchaser'    => $p->purchaser_name,
+                'area'         => $p->area_quantity . ' ' . $p->area_unit,
+                'amount'       => number_format($p->amount, 2),
+            ];
+        })->values();
+
+        return view('realEstate.plot.inventoryArea', compact('mouza', 'plots', 'mapPlots'));
+    }
+
+    /**
+     * AJAX: search within a single area's plots (field_number / purchaser).
+     */
+    public function inventoryData(Request $request, $mouza_id)
+    {
+        $query = $request->get('q');
+
+        $plots = Plot::where('mouza_id', $mouza_id)
+            ->where('created_by', Auth::user()->creatorId())
+            ->with('kiwat')
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($sub) use ($query) {
+                    $sub->where('field_number', 'like', "%{$query}%")
+                        ->orWhere('purchaser_name', 'like', "%{$query}%")
+                        ->orWhere('intiqal_no', 'like', "%{$query}%");
+                });
+            })
+            ->limit(100)
+            ->get();
+
+        $result = $plots->map(function ($p) {
+            return [
+                'id'           => $p->id,
+                'field_number' => $p->field_number,
+                'kiwat_number' => $p->kiwat->kiwat_number ?? '-',
+                'intiqal_no'   => $p->intiqal_no ?? '-',
+                'purchaser'    => $p->purchaser_name,
+                'area'         => $p->area_quantity . ' ' . $p->area_unit,
+                'amount'       => number_format($p->amount, 2),
+                'status'       => $p->status,
+                'lat'          => $p->latitude,
+                'lng'          => $p->longitude,
+            ];
+        });
+
+        return response()->json($result);
+    }
 }

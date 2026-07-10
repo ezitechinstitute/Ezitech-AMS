@@ -192,8 +192,7 @@
                     @endif
                 @endif
 
-
-                {{---------  Real Estate ------------}}
+{{---------  Real Estate ------------}}
 @if( Gate::check('manage mouza') || Gate::check('manage plot'))
 <li class="dash-item dash-hasmenu {{ (Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? ' active dash-trigger' : '' }}">
     <a href="#!" class="dash-link">
@@ -210,9 +209,14 @@
         </li>
         @endcan
         @can('manage plot')
-        <li class="dash-item {{ (Request::segment(1) == 'plot') ? 'active' : '' }}">
+        <li class="dash-item {{ (Request::segment(1) == 'plot' && Request::segment(2) != 'inventory') ? 'active' : '' }}">
             <a class="dash-link" href="{{ route('plot.index') }}">
                 <i class="ti ti-layout-grid me-1"></i>{{ __('Plots') }}
+            </a>
+        </li>
+        <li class="dash-item {{ (Request::segment(1) == 'plot' && Request::segment(2) == 'inventory') ? 'active' : '' }}">
+            <a class="dash-link" href="{{ route('plot.inventory') }}">
+                <i class="ti ti-map-search me-1"></i>{{ __('Plot Inventory') }}
             </a>
         </li>
         @endcan

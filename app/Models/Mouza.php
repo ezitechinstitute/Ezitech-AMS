@@ -58,4 +58,8 @@ class Mouza extends Model
 
         return $parts ? implode(', ', $parts) : '-';
     }
+    public function plots()
+    {
+        return $this->hasMany(Plot::class, 'mouza_id');
+    }
 }

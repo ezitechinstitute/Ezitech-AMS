@@ -193,7 +193,6 @@
                 <?php endif; ?>
 
 
-                
 <?php if( Gate::check('manage mouza') || Gate::check('manage plot')): ?>
 <li class="dash-item dash-hasmenu <?php echo e((Request::segment(1) == 'mouza' || Request::segment(1) == 'plot') ? ' active dash-trigger' : ''); ?>">
     <a href="#!" class="dash-link">
@@ -211,9 +210,15 @@
         </li>
         <?php endif; ?>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage plot')): ?>
-        <li class="dash-item <?php echo e((Request::segment(1) == 'plot') ? 'active' : ''); ?>">
+        <li class="dash-item <?php echo e((Request::segment(1) == 'plot' && Request::segment(2) != 'inventory') ? 'active' : ''); ?>">
             <a class="dash-link" href="<?php echo e(route('plot.index')); ?>">
                 <i class="ti ti-layout-grid me-1"></i><?php echo e(__('Plots')); ?>
+
+            </a>
+        </li>
+        <li class="dash-item <?php echo e((Request::segment(1) == 'plot' && Request::segment(2) == 'inventory') ? 'active' : ''); ?>">
+            <a class="dash-link" href="<?php echo e(route('plot.inventory')); ?>">
+                <i class="ti ti-map-search me-1"></i><?php echo e(__('Plot Inventory')); ?>
 
             </a>
         </li>
