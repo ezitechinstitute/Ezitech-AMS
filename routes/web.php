@@ -20,6 +20,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\MercadoPaymentController;
 use App\Http\Controllers\MolliePaymentController;
 use App\Http\Controllers\MouzaController;
+use App\Http\Controllers\ConstructionProjectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentWallPaymentController;
 use App\Http\Controllers\PaypalController;
@@ -1068,3 +1069,35 @@ if (!Route::has('real.estate.document.delete')) {
     Route::get('/real-estate/document/{id}/delete', [MouzaController::class, 'deleteDocument'])
         ->name('real.estate.document.delete');
 }
+// ===================== CONSTRUCTION PROJECT =====================
+Route::prefix('construction-project')->name('construction-project.')->group(function () {
+    Route::get('/', [ConstructionProjectController::class, 'index'])->name('index');
+    Route::get('/create', [ConstructionProjectController::class, 'create'])->name('create');
+    Route::post('/', [ConstructionProjectController::class, 'store'])->name('store');
+
+    // ⬇️ Static routes PEHLE
+    Route::get('/fields', [ConstructionProjectController::class, 'fieldIndex'])->name('field.index');
+    Route::get('/plots', [ConstructionProjectController::class, 'plotIndex'])->name('plot.index');
+
+    // Fields
+    Route::get('/field/{id}/edit', [ConstructionProjectController::class, 'fieldEdit'])->name('field.edit');
+    Route::put('/field/{id}', [ConstructionProjectController::class, 'fieldUpdate'])->name('field.update');
+    Route::delete('/field/{id}', [ConstructionProjectController::class, 'fieldDestroy'])->name('field.destroy');
+
+    // Plots
+    Route::get('/plot/{id}/edit', [ConstructionProjectController::class, 'plotEdit'])->name('plot.edit');
+    Route::put('/plot/{id}', [ConstructionProjectController::class, 'plotUpdate'])->name('plot.update');
+    Route::delete('/plot/{id}', [ConstructionProjectController::class, 'plotDestroy'])->name('plot.destroy');
+
+    // ⬇️ Dynamic {id} routes BAAD MEIN
+    Route::get('/{id}/edit', [ConstructionProjectController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [ConstructionProjectController::class, 'update'])->name('update');
+    Route::delete('/{id}', [ConstructionProjectController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/field/create', [ConstructionProjectController::class, 'fieldCreate'])->name('field.create');
+    Route::post('/{id}/field', [ConstructionProjectController::class, 'fieldStore'])->name('field.store');
+    Route::get('/{id}/plot/create', [ConstructionProjectController::class, 'plotCreate'])->name('plot.create');
+    Route::post('/{id}/plot', [ConstructionProjectController::class, 'plotStore'])->name('plot.store');
+
+    // ⬇️ show sabse aakhir mein
+    Route::get('/{id}', [ConstructionProjectController::class, 'show'])->name('show');
+});

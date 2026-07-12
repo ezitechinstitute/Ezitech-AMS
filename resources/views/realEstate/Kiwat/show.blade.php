@@ -90,9 +90,9 @@
                                         <td>{{ number_format($field->amount, 2) }}</td>
                                         <td>
                                             @if ($field->status == 'available')
-                                                <span class="badge bg-danger">🔴 Available</span>
+                                                <span class="badge bg-primary">🔵 Available</span>
                                             @else
-                                                <span class="badge bg-success">🟢 Sold</span>
+                                                <span class="badge bg-success">🟢 Purchased</span>
                                             @endif
                                         </td>
                                         <td>
