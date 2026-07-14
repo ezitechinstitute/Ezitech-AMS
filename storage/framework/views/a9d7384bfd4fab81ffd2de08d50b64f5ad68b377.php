@@ -83,22 +83,22 @@
 
                 <!-- <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage customer proposal')): ?>
     <li class="dash-item <?php echo e(Request::route()->getName() == 'customer.proposal' || Request::route()->getName() == 'customer.proposal.show' ? ' active' : ''); ?> ">
-                                                    <a href="<?php echo e(route('customer.proposal')); ?>" class="dash-link ">
-                                                        <span class="dash-micon"><i class="ti ti-receipt"></i></span>
-                                                        <span class="dash-mtext"><?php echo e(__('Proposal')); ?></span>
-                                                    </a>
-                                                </li>
+                                                        <a href="<?php echo e(route('customer.proposal')); ?>" class="dash-link ">
+                                                            <span class="dash-micon"><i class="ti ti-receipt"></i></span>
+                                                            <span class="dash-mtext"><?php echo e(__('Proposal')); ?></span>
+                                                        </a>
+                                                    </li>
 <?php endif; ?> -->
 
                 
 
                 <!-- <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('manage customer proposal')): ?>
     <li class="dash-item <?php echo e(Request::route()->getName() == 'customer.retainer' || Request::route()->getName() == 'customer.retainer.show' ? ' active' : ''); ?> ">
-                                                    <a href="<?php echo e(route('customer.retainer')); ?>" class="dash-link ">
-                                                        <span class="dash-micon"><i class="ti ti-receipt"></i></span>
-                                                        <span class="dash-mtext"><?php echo e(__('Retainer')); ?></span>
-                                                    </a>
-                                                </li>
+                                                        <a href="<?php echo e(route('customer.retainer')); ?>" class="dash-link ">
+                                                            <span class="dash-micon"><i class="ti ti-receipt"></i></span>
+                                                            <span class="dash-mtext"><?php echo e(__('Retainer')); ?></span>
+                                                        </a>
+                                                    </li>
 <?php endif; ?> -->
 
 

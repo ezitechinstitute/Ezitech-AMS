@@ -83,22 +83,22 @@
 
                 <!-- @can('manage customer proposal')
     <li class="dash-item {{ Request::route()->getName() == 'customer.proposal' || Request::route()->getName() == 'customer.proposal.show' ? ' active' : '' }} ">
-                                                    <a href="{{ route('customer.proposal') }}" class="dash-link ">
-                                                        <span class="dash-micon"><i class="ti ti-receipt"></i></span>
-                                                        <span class="dash-mtext">{{ __('Proposal') }}</span>
-                                                    </a>
-                                                </li>
+                                                        <a href="{{ route('customer.proposal') }}" class="dash-link ">
+                                                            <span class="dash-micon"><i class="ti ti-receipt"></i></span>
+                                                            <span class="dash-mtext">{{ __('Proposal') }}</span>
+                                                        </a>
+                                                    </li>
 @endcan -->
 
                 {{-- -------  Customer Retainer ---------- --}}
 
                 <!-- @can('manage customer proposal')
     <li class="dash-item {{ Request::route()->getName() == 'customer.retainer' || Request::route()->getName() == 'customer.retainer.show' ? ' active' : '' }} ">
-                                                    <a href="{{ route('customer.retainer') }}" class="dash-link ">
-                                                        <span class="dash-micon"><i class="ti ti-receipt"></i></span>
-                                                        <span class="dash-mtext">{{ __('Retainer') }}</span>
-                                                    </a>
-                                                </li>
+                                                        <a href="{{ route('customer.retainer') }}" class="dash-link ">
+                                                            <span class="dash-micon"><i class="ti ti-receipt"></i></span>
+                                                            <span class="dash-mtext">{{ __('Retainer') }}</span>
+                                                        </a>
+                                                    </li>
 @endcan -->
 
 
