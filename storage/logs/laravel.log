@@ -10011,3 +10011,22 @@
 #48 E:\\2026\\Ezitech-AMS-main\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('E:\\\\2026\\\\Ezitech...')
 #49 {main}
 "} 
+[2026-07-12 21:25:08] local.ERROR: Command "cache:clearphp" is not defined.
+
+Did you mean one of these?
+    cache:clear
+    cache:forget
+    cache:table {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"cache:clearphp\" is not defined.
+
+Did you mean one of these?
+    cache:clear
+    cache:forget
+    cache:table at C:\\xampp\\htdocs\\AMS\\main_file\\vendor\\symfony\\console\\Application.php:694)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\AMS\\main_file\\vendor\\symfony\\console\\Application.php(259): Symfony\\Component\\Console\\Application->find('cache:clearphp')
+#1 C:\\xampp\\htdocs\\AMS\\main_file\\vendor\\symfony\\console\\Application.php(171): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 C:\\xampp\\htdocs\\AMS\\main_file\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Application.php(102): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 C:\\xampp\\htdocs\\AMS\\main_file\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(155): Illuminate\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 C:\\xampp\\htdocs\\AMS\\main_file\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 {main}
+"} 
