@@ -8,7 +8,17 @@
     <li class="breadcrumb-item"><?php echo e(__('Construction Project Gulberg')); ?></li>
     <li class="breadcrumb-item"><?php echo e(__('Plots')); ?></li>
 <?php $__env->stopSection(); ?>
+<?php $__env->startSection('action-btn'); ?>
+    <div class="float-end">
+        <?php $cp = \App\Models\ConstructionProject::where('created_by', auth()->user()->creatorId())->first(); ?>
+        <?php if($cp): ?>
+            <a href="<?php echo e(route('construction-project.plot.create', $cp->id)); ?>" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus"></i> <?php echo e(__('Add Plot')); ?>
 
+            </a>
+        <?php endif; ?>
+    </div>
+<?php $__env->stopSection(); ?>
 <?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">

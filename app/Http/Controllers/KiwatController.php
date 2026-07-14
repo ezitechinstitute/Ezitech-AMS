@@ -29,7 +29,7 @@ class KiwatController extends Controller
     public function create($mouza_id)
     {
         $mouza = Mouza::where('created_by', Auth::user()->creatorId())->findOrFail($mouza_id);
-        return view('realEstate.kiwat.create', compact('mouza'));
+        return view('realEstate.Kiwat.create', compact('mouza'));
     }
 
     public function store(Request $request, $mouza_id)
@@ -65,13 +65,13 @@ class KiwatController extends Controller
             ->where('created_by', Auth::user()->creatorId())
             ->findOrFail($id);
 
-        return view('realEstate.kiwat.show', compact('kiwat'));
+        return view('realEstate.Kiwat.show', compact('kiwat'));
     }
 
     public function edit($id)
     {
         $kiwat = Kiwat::where('created_by', Auth::user()->creatorId())->findOrFail($id);
-        return view('realEstate.kiwat.edit', compact('kiwat'));
+        return view('realEstate.Kiwat.edit', compact('kiwat'));
     }
 
     public function update(Request $request, $id)
@@ -94,7 +94,7 @@ class KiwatController extends Controller
             'total_area_unit' => $request->total_area_unit,
         ]);
 
-        return redirect()->route('mouza.kiwat.index', $kiwat->mouza_id)
+        return redirect()->route('mouza.Kiwat.index', $kiwat->mouza_id)
             ->with('success', __('Kiwat updated successfully.'));
     }
 
@@ -112,7 +112,7 @@ class KiwatController extends Controller
         $mouza_id = $kiwat->mouza_id;
         $kiwat->delete();
 
-        return redirect()->route('mouza.kiwat.index', $mouza_id)
+        return redirect()->route('mouza.Kiwat.index', $mouza_id)
             ->with('success', __('Kiwat deleted successfully.'));
     }
 

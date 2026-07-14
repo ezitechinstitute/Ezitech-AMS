@@ -7,7 +7,16 @@
     <li class="breadcrumb-item">{{ __('Construction Project Gulberg') }}</li>
     <li class="breadcrumb-item">{{ __('Plots') }}</li>
 @endsection
-
+@section('action-btn')
+    <div class="float-end">
+        @php $cp = \App\Models\ConstructionProject::where('created_by', auth()->user()->creatorId())->first(); @endphp
+        @if ($cp)
+            <a href="{{ route('construction-project.plot.create', $cp->id) }}" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus"></i> {{ __('Add Plot') }}
+            </a>
+        @endif
+    </div>
+@endsection
 @section('content')
     <div class="row">
         <div class="col-12">
