@@ -1,25 +1,26 @@
-@extends('layouts.admin')
-@section('page-title')
-    {{ __('Add Plot') }}
-@endsection
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Add Plot')); ?>
 
-@section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('plot.index') }}">{{ __('Plots') }}</a></li>
-    @if (!empty($mouza))
-        <li class="breadcrumb-item">{{ $mouza->name }}</li>
-    @endif
-    <li class="breadcrumb-item">{{ __('Add Plot') }}</li>
-@endsection
-@section('action-btn')
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('breadcrumb'); ?>
+    <li class="breadcrumb-item"><a href="<?php echo e(route('dashboard')); ?>"><?php echo e(__('Dashboard')); ?></a></li>
+    <li class="breadcrumb-item"><a href="<?php echo e(route('plot.index')); ?>"><?php echo e(__('Plots')); ?></a></li>
+    <?php if(!empty($mouza)): ?>
+        <li class="breadcrumb-item"><?php echo e($mouza->name); ?></li>
+    <?php endif; ?>
+    <li class="breadcrumb-item"><?php echo e(__('Add Plot')); ?></li>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('action-btn'); ?>
     <div class="float-end">
-        <a href="{{ route('plot.index') }}" class="btn btn-sm btn-secondary">
-            <i class="ti ti-arrow-left"></i> {{ __('Back') }}
+        <a href="<?php echo e(route('plot.index')); ?>" class="btn btn-sm btn-secondary">
+            <i class="ti ti-arrow-left"></i> <?php echo e(__('Back')); ?>
+
         </a>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('css-page')
+<?php $__env->startPush('css-page'); ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -51,75 +52,77 @@
             color: #fff !important;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
-    <form action="{{ route('plot.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        {{-- <input type="hidden" name="mouza_id" value="{{ $mouza->id ?? '' }}"> --}}
+<?php $__env->startSection('content'); ?>
+    <form action="<?php echo e(route('plot.store')); ?>" method="POST" enctype="multipart/form-data">
+        <?php echo csrf_field(); ?>
+        
         <div class="row mb-3">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="form-label">{{ __('Mouza') }} <span class="text-danger">*</span></label>
+                    <label class="form-label"><?php echo e(__('Mouza')); ?> <span class="text-danger">*</span></label>
                     <select name="mouza_id" id="mouza-select" class="form-control" required>
-                        <option value="">-- {{ __('Select Mouza') }} --</option>
-                        @foreach ($mouzas as $m)
-                            <option value="{{ $m->id }}"
-                                {{ old('mouza_id', $mouza->id ?? '') == $m->id ? 'selected' : '' }}>
-                                {{ $m->name }}
+                        <option value="">-- <?php echo e(__('Select Mouza')); ?> --</option>
+                        <?php $__currentLoopData = $mouzas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($m->id); ?>"
+                                <?php echo e(old('mouza_id', $mouza->id ?? '') == $m->id ? 'selected' : ''); ?>>
+                                <?php echo e($m->name); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label class="form-label">{{ __('Kiwat (Block/Phase)') }} <span class="text-danger">*</span></label>
+                    <label class="form-label"><?php echo e(__('Kiwat (Block/Phase)')); ?> <span class="text-danger">*</span></label>
                     <select name="kiwat_id" id="kiwat-select" class="form-control" required>
-                        <option value="">-- {{ __('Select Kiwat') }} --</option>
-                        @foreach ($kiwats as $k)
-                            <option value="{{ $k->id }}" {{ old('kiwat_id') == $k->id ? 'selected' : '' }}>
-                                {{ $k->kiwat_number }}
+                        <option value="">-- <?php echo e(__('Select Kiwat')); ?> --</option>
+                        <?php $__currentLoopData = $kiwats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $k): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($k->id); ?>" <?php echo e(old('kiwat_id') == $k->id ? 'selected' : ''); ?>>
+                                <?php echo e($k->kiwat_number); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
             </div>
         </div>
         <div class="row">
 
-            {{-- ======= Intiqal / Deal Level Info (shared for all plots below) ======= --}}
+            
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="ti ti-file-text"></i> {{ __('Intiqal / Deal Information') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-file-text"></i> <?php echo e(__('Intiqal / Deal Information')); ?></h5>
                     </div>
                     <div class="card-body">
-                        @if ($errors->any())
+                        <?php if($errors->any()): ?>
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
-                                    @foreach ($errors->all() as $e)
-                                        <li>{{ $e }}</li>
-                                    @endforeach
+                                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <li><?php echo e($e); ?></li>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
                             </div>
-                        @endif
+                        <?php endif; ?>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Intiqal No.') }}</label>
+                                    <label class="form-label"><?php echo e(__('Intiqal No.')); ?></label>
                                     <input type="text" name="intiqal_no" class="form-control"
-                                        value="{{ old('intiqal_no') }}">
+                                        value="<?php echo e(old('intiqal_no')); ?>">
                                     <small
-                                        class="text-muted">{{ __('One Intiqal can have multiple Field Numbers.') }}</small>
+                                        class="text-muted"><?php echo e(__('One Intiqal can have multiple Field Numbers.')); ?></small>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Total Deal Amount (PKR)') }} <span
+                                    <label class="form-label"><?php echo e(__('Total Deal Amount (PKR)')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="number" name="amount" class="form-control" required
-                                        value="{{ old('amount') }}" step="0.01">
+                                        value="<?php echo e(old('amount')); ?>" step="0.01">
                                 </div>
                             </div>
                         </div>
@@ -127,55 +130,56 @@
                 </div>
             </div>
 
-            {{-- ======= Field(s) Info - Repeater ======= --}}
+            
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="ti ti-map-2"></i> {{ __('Field Information') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-map-2"></i> <?php echo e(__('Field Information')); ?></h5>
                         <button type="button" class="btn btn-sm btn-light" onclick="addFieldRow()">
-                            <i class="ti ti-plus"></i> {{ __('Add Another Field Number') }}
+                            <i class="ti ti-plus"></i> <?php echo e(__('Add Another Field Number')); ?>
+
                         </button>
                     </div>
                     <div class="card-body">
 
                         <div id="fields-wrapper">
-                            {{-- Field Row Template (row #1, always present) --}}
+                            
                             <div class="field-row row mb-3 p-3 border" data-index="0">
-                                <span class="field-index-badge">{{ __('Field') }} #1</span>
+                                <span class="field-index-badge"><?php echo e(__('Field')); ?> #1</span>
 
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
-                                        <label class="form-label">{{ __('Field Number') }} <span
+                                        <label class="form-label"><?php echo e(__('Field Number')); ?> <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" name="fields[0][field_number]" class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
-                                        <label class="form-label">{{ __('Khasra No.') }}</label>
+                                        <label class="form-label"><?php echo e(__('Khasra No.')); ?></label>
                                         <select name="fields[0][khasra_id]" class="form-control khasra-select"
                                             data-index="0">
-                                            <option value="">-- {{ __('Select Khasra') }} --</option>
+                                            <option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>
                                         </select>
-                                        <small class="text-muted">{{ __('Select Kiwat above first') }}</small>
+                                        <small class="text-muted"><?php echo e(__('Select Kiwat above first')); ?></small>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
-                                        <label class="form-label">{{ __('Status') }}</label>
-                                        {{-- Now we are fixed the status available --}}
+                                        <label class="form-label"><?php echo e(__('Status')); ?></label>
+                                        
                                         <input type="hidden" name="status" value="available">
                                         <input type="text" class="form-control bg-light" value="Available" readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
-                                        <label class="form-label">{{ __('Map Location') }}</label>
+                                        <label class="form-label"><?php echo e(__('Map Location')); ?></label>
                                         <button type="button"
                                             class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn"
                                             onclick="setActiveRow(this)">
                                             <i class="ti ti-map-pin"></i> <span
-                                                class="pin-status">{{ __('Not set - click to pick') }}</span>
+                                                class="pin-status"><?php echo e(__('Not set - click to pick')); ?></span>
                                         </button>
                                         <input type="hidden" name="fields[0][latitude]" class="field-lat-input">
                                         <input type="hidden" name="fields[0][longitude]" class="field-lng-input">
@@ -191,21 +195,21 @@
 
                                 <div class="col-12">
                                     <hr class="my-2">
-                                    <label class="form-label mb-1"><strong>{{ __('Land Area') }}</strong> <span
+                                    <label class="form-label mb-1"><strong><?php echo e(__('Land Area')); ?></strong> <span
                                             class="text-danger">*</span>
-                                        <small class="text-muted">({{ __('enter in any combination') }})</small>
+                                        <small class="text-muted">(<?php echo e(__('enter in any combination')); ?>)</small>
                                     </label>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
-                                        <label class="form-label small">{{ __('Acre') }}</label>
+                                        <label class="form-label small"><?php echo e(__('Acre')); ?></label>
                                         <input type="number" min="0" step="1" name="fields[0][area_acre]"
                                             class="form-control area-part-input" value="0">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
-                                        <label class="form-label small">{{ __('Kanal') }}</label>
+                                        <label class="form-label small"><?php echo e(__('Kanal')); ?></label>
                                         <input type="number" min="0" max="7" step="1"
                                             name="fields[0][area_kanal]" class="form-control area-part-input"
                                             value="0">
@@ -213,7 +217,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group mb-2">
-                                        <label class="form-label small">{{ __('Marla') }}</label>
+                                        <label class="form-label small"><?php echo e(__('Marla')); ?></label>
                                         <input type="number" min="0" max="19" step="1"
                                             name="fields[0][area_marla]" class="form-control area-part-input"
                                             value="0">
@@ -221,7 +225,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group mb-2">
-                                        <label class="form-label small">{{ __('Total (in Marla)') }}</label>
+                                        <label class="form-label small"><?php echo e(__('Total (in Marla)')); ?></label>
                                         <input type="text" class="form-control bg-light total-marla-display" readonly
                                             value="0">
                                         <input type="hidden" name="fields[0][total_marla]" class="total-marla-input"
@@ -232,107 +236,108 @@
                         </div>
 
                         <div class="mb-2 mt-3">
-                            <label class="form-label">{{ __('Pick Location on Map') }}</label>
+                            <label class="form-label"><?php echo e(__('Pick Location on Map')); ?></label>
                             <div id="field-map-picker"></div>
                             <small class="text-muted" id="map-instruction">
-                                {{ __('Click "Map Location" button on a field row above, then click on the map to set its pin.') }}
+                                <?php echo e(__('Click "Map Location" button on a field row above, then click on the map to set its pin.')); ?>
+
                             </small>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- ======= Purchaser Details ======= --}}
+            
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="ti ti-user"></i> {{ __('Purchaser Details') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-user"></i> <?php echo e(__('Purchaser Details')); ?></h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Purchaser Full Name') }} <span
+                            <label class="form-label"><?php echo e(__('Purchaser Full Name')); ?> <span
                                     class="text-danger">*</span></label>
                             <input type="text" name="purchaser_name" class="form-control" required
-                                value="{{ old('purchaser_name') }}">
+                                value="<?php echo e(old('purchaser_name')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Father Name') }}</label>
+                            <label class="form-label"><?php echo e(__('Father Name')); ?></label>
                             <input type="text" name="purchaser_father_name" class="form-control"
-                                value="{{ old('purchaser_father_name') }}">
+                                value="<?php echo e(old('purchaser_father_name')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('CNIC No.') }}</label>
+                            <label class="form-label"><?php echo e(__('CNIC No.')); ?></label>
                             <input type="text" name="purchaser_cnic" class="form-control"
-                                placeholder="xxxxx-xxxxxxx-x" value="{{ old('purchaser_cnic') }}">
+                                placeholder="xxxxx-xxxxxxx-x" value="<?php echo e(old('purchaser_cnic')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Phone') }}</label>
+                            <label class="form-label"><?php echo e(__('Phone')); ?></label>
                             <input type="text" name="purchaser_phone" class="form-control"
-                                value="{{ old('purchaser_phone') }}">
+                                value="<?php echo e(old('purchaser_phone')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Address') }}</label>
-                            <textarea name="purchaser_address" class="form-control" rows="2">{{ old('purchaser_address') }}</textarea>
+                            <label class="form-label"><?php echo e(__('Address')); ?></label>
+                            <textarea name="purchaser_address" class="form-control" rows="2"><?php echo e(old('purchaser_address')); ?></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- ======= Commission Agent ======= --}}
+            
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0"><i class="ti ti-users"></i> {{ __('Commission Agent Details') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-users"></i> <?php echo e(__('Commission Agent Details')); ?></h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Agent Full Name') }}</label>
+                            <label class="form-label"><?php echo e(__('Agent Full Name')); ?></label>
                             <input type="text" name="agent_name" class="form-control"
-                                value="{{ old('agent_name') }}">
+                                value="<?php echo e(old('agent_name')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Agent CNIC') }}</label>
+                            <label class="form-label"><?php echo e(__('Agent CNIC')); ?></label>
                             <input type="text" name="agent_cnic" class="form-control" placeholder="xxxxx-xxxxxxx-x"
-                                value="{{ old('agent_cnic') }}">
+                                value="<?php echo e(old('agent_cnic')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Agent Phone') }}</label>
+                            <label class="form-label"><?php echo e(__('Agent Phone')); ?></label>
                             <input type="text" name="agent_phone" class="form-control"
-                                value="{{ old('agent_phone') }}">
+                                value="<?php echo e(old('agent_phone')); ?>">
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Agent Address') }}</label>
-                            <textarea name="agent_address" class="form-control" rows="2">{{ old('agent_address') }}</textarea>
+                            <label class="form-label"><?php echo e(__('Agent Address')); ?></label>
+                            <textarea name="agent_address" class="form-control" rows="2"><?php echo e(old('agent_address')); ?></textarea>
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Commission Amount (PKR)') }}</label>
+                            <label class="form-label"><?php echo e(__('Commission Amount (PKR)')); ?></label>
                             <input type="number" name="agent_commission" class="form-control" step="0.01"
-                                value="{{ old('agent_commission', 0) }}">
+                                value="<?php echo e(old('agent_commission', 0)); ?>">
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- ======= Patwari Expense ======= --}}
+            
             <div class="col-12">
                 <div class="card">
                     <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0"><i class="ti ti-receipt"></i> {{ __('Patwari Expenses') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-receipt"></i> <?php echo e(__('Patwari Expenses')); ?></h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Total Patwari Expense (PKR)') }}</label>
+                            <label class="form-label"><?php echo e(__('Total Patwari Expense (PKR)')); ?></label>
                             <input type="number" name="patwari_total" id="patwari_total" class="form-control"
-                                step="0.01" value="{{ old('patwari_total', 0) }}">
+                                step="0.01" value="<?php echo e(old('patwari_total', 0)); ?>">
                         </div>
-                        <label class="form-label"><strong>{{ __('Breakdown (who was paid how much)') }}</strong></label>
+                        <label class="form-label"><strong><?php echo e(__('Breakdown (who was paid how much)')); ?></strong></label>
                         <div class="table-responsive">
                             <table class="table table-bordered" id="patwari-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>{{ __('Person Name') }}</th>
-                                        <th>{{ __('Amount (PKR)') }}</th>
-                                        <th>{{ __('Note / Reason') }}</th>
+                                        <th><?php echo e(__('Person Name')); ?></th>
+                                        <th><?php echo e(__('Amount (PKR)')); ?></th>
+                                        <th><?php echo e(__('Note / Reason')); ?></th>
                                         <th>
                                             <button type="button" class="btn btn-sm btn-success"
                                                 onclick="addPatwariRow()">
@@ -359,40 +364,43 @@
                 </div>
             </div>
 
-            {{-- ======= Bank Link ======= --}}
+            
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="ti ti-building-bank"></i> {{ __('Bank Link') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-building-bank"></i> <?php echo e(__('Bank Link')); ?></h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Select Bank Account') }}</label>
+                            <label class="form-label"><?php echo e(__('Select Bank Account')); ?></label>
                             <select name="bank_account_id" class="form-control">
-                                <option value="">-- {{ __('Select Bank Account') }} --</option>
-                                @foreach ($bankAccounts as $bank)
-                                    <option value="{{ $bank->id }}"
-                                        {{ old('bank_account_id') == $bank->id ? 'selected' : '' }}>
-                                        {{ $bank->bank_name ?: $bank->holder_name }}{{ $bank->account_number ? ' - ' . $bank->account_number : '' }}
+                                <option value="">-- <?php echo e(__('Select Bank Account')); ?> --</option>
+                                <?php $__currentLoopData = $bankAccounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bank): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($bank->id); ?>"
+                                        <?php echo e(old('bank_account_id') == $bank->id ? 'selected' : ''); ?>>
+                                        <?php echo e($bank->bank_name ?: $bank->holder_name); ?><?php echo e($bank->account_number ? ' - ' . $bank->account_number : ''); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <small class="text-muted">
-                            {{ __("Don't see your bank?") }}
-                            <a href="{{ route('bank-account.create') }}"
-                                target="_blank">{{ __('Add New Bank Account') }}</a>
-                            {{ __('then come back here.') }}
+                            <?php echo e(__("Don't see your bank?")); ?>
+
+                            <a href="<?php echo e(route('bank-account.create')); ?>"
+                                target="_blank"><?php echo e(__('Add New Bank Account')); ?></a>
+                            <?php echo e(__('then come back here.')); ?>
+
                         </small>
                     </div>
                 </div>
             </div>
 
-            {{-- ======= Supporting Documents ======= --}}
+            
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header" style="background:#6f42c1; color:white;">
-                        <h5 class="mb-0"><i class="ti ti-paperclip"></i> {{ __('Supporting Documents') }}</h5>
+                        <h5 class="mb-0"><i class="ti ti-paperclip"></i> <?php echo e(__('Supporting Documents')); ?></h5>
                     </div>
                     <div class="card-body">
                         <div id="documents-wrapper">
@@ -424,18 +432,18 @@
                 </div>
             </div>
 
-            {{-- ======= Notes & Submit ======= --}}
+            
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Notes / Remarks') }}</label>
-                            <textarea name="notes" class="form-control" rows="2">{{ old('notes') }}</textarea>
+                            <label class="form-label"><?php echo e(__('Notes / Remarks')); ?></label>
+                            <textarea name="notes" class="form-control" rows="2"><?php echo e(old('notes')); ?></textarea>
                         </div>
                         <div class="text-end">
-                            <a href="{{ route('plot.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="<?php echo e(route('plot.index')); ?>" class="btn btn-secondary"><?php echo e(__('Cancel')); ?></a>
                             <button type="submit" class="btn btn-primary"><i class="ti ti-check"></i>
-                                {{ __('Save Plot') }}</button>
+                                <?php echo e(__('Save Plot')); ?></button>
                         </div>
                     </div>
                 </div>
@@ -443,15 +451,15 @@
 
         </div>
     </form>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('script-page')
+<?php $__env->startPush('script-page'); ?>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         var currentKiwatId = document.getElementById('kiwat-select').value;
         if (currentKiwatId) {
-            fetch(`{{ url('/plot/khasras-by-kiwat') }}/${currentKiwatId}`)
+            fetch(`<?php echo e(url('/plot/khasras-by-kiwat')); ?>/${currentKiwatId}`)
                 .then(res => res.json())
                 .then(khasras => {
                     var newSelect = document.querySelector('.field-row[data-index="' + idx + '"] .khasra-select');
@@ -466,7 +474,7 @@
         document.getElementById('mouza-select').addEventListener('change', function() {
             var mouzaId = this.value;
             var kiwatSelect = document.getElementById('kiwat-select');
-            kiwatSelect.innerHTML = '<option value="">-- {{ __('Select Kiwat') }} --</option>';
+            kiwatSelect.innerHTML = '<option value="">-- <?php echo e(__('Select Kiwat')); ?> --</option>';
             clearAllKhasraDropdowns();
 
             if (!mouzaId) return;
@@ -490,12 +498,12 @@
         function loadKhasrasForAllRows(kiwatId) {
             var selects = document.querySelectorAll('.khasra-select');
             selects.forEach(function(sel) {
-                sel.innerHTML = '<option value="">-- {{ __('Select Khasra') }} --</option>';
+                sel.innerHTML = '<option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>';
             });
 
             if (!kiwatId) return;
 
-            fetch(`{{ url('/plot/khasras-by-kiwat') }}/${kiwatId}`)
+            fetch(`<?php echo e(url('/plot/khasras-by-kiwat')); ?>/${kiwatId}`)
                 .then(res => res.json())
                 .then(khasras => {
                     selects.forEach(function(sel) {
@@ -511,7 +519,7 @@
 
         function clearAllKhasraDropdowns() {
             document.querySelectorAll('.khasra-select').forEach(function(sel) {
-                sel.innerHTML = '<option value="">-- {{ __('Select Khasra') }} --</option>';
+                sel.innerHTML = '<option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>';
             });
         }
         // ================= Patwari rows =================
@@ -579,36 +587,36 @@
             var idx = fieldRowCounter;
             var html = `
                 <div class="field-row row mb-3 p-3 border" data-index="${idx}">
-                    <span class="field-index-badge">{{ __('Field') }} #${idx + 1}</span>
+                    <span class="field-index-badge"><?php echo e(__('Field')); ?> #${idx + 1}</span>
                     <div class="col-md-3">
                         <div class="form-group mb-2">
-                            <label class="form-label">{{ __('Field Number') }} <span class="text-danger">*</span></label>
+                            <label class="form-label"><?php echo e(__('Field Number')); ?> <span class="text-danger">*</span></label>
                             <input type="text" name="fields[${idx}][field_number]" class="form-control" required>
                         </div>
                     </div>
                     <div class="col-md-3">
     <div class="form-group mb-2">
-        <label class="form-label">{{ __('Khasra No.') }}</label>
+        <label class="form-label"><?php echo e(__('Khasra No.')); ?></label>
         <select name="fields[${idx}][khasra_id]" class="form-control khasra-select" data-index="${idx}">
-            <option value="">-- {{ __('Select Khasra') }} --</option>
+            <option value="">-- <?php echo e(__('Select Khasra')); ?> --</option>
         </select>
     </div>
 </div>
                     <div class="col-md-2">
                         <div class="form-group mb-2">
-                            <label class="form-label">{{ __('Status') }}</label>
+                            <label class="form-label"><?php echo e(__('Status')); ?></label>
                             <select name="fields[${idx}][status]" class="form-control">
-                                <option value="available">🔴 {{ __('Available') }}</option>
-                                <option value="reserved">🟡 {{ __('Reserved') }}</option>
-                                <option value="sold">🟢 {{ __('Sold') }}</option>
+                                <option value="available">🔴 <?php echo e(__('Available')); ?></option>
+                                <option value="reserved">🟡 <?php echo e(__('Reserved')); ?></option>
+                                <option value="sold">🟢 <?php echo e(__('Sold')); ?></option>
                             </select>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-2">
-                            <label class="form-label">{{ __('Map Location') }}</label>
+                            <label class="form-label"><?php echo e(__('Map Location')); ?></label>
                             <button type="button" class="btn btn-outline-primary btn-sm w-100 pick-on-map-btn" onclick="setActiveRow(this)">
-                                <i class="ti ti-map-pin"></i> <span class="pin-status">{{ __('Not set - click to pick') }}</span>
+                                <i class="ti ti-map-pin"></i> <span class="pin-status"><?php echo e(__('Not set - click to pick')); ?></span>
                             </button>
                             <input type="hidden" name="fields[${idx}][latitude]" class="field-lat-input">
                             <input type="hidden" name="fields[${idx}][longitude]" class="field-lng-input">
@@ -623,31 +631,31 @@
 
                     <div class="col-12">
                         <hr class="my-2">
-                        <label class="form-label mb-1"><strong>{{ __('Land Area') }}</strong> <span class="text-danger">*</span>
-                            <small class="text-muted">({{ __('enter in any combination') }})</small>
+                        <label class="form-label mb-1"><strong><?php echo e(__('Land Area')); ?></strong> <span class="text-danger">*</span>
+                            <small class="text-muted">(<?php echo e(__('enter in any combination')); ?>)</small>
                         </label>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group mb-2">
-                            <label class="form-label small">{{ __('Acre') }}</label>
+                            <label class="form-label small"><?php echo e(__('Acre')); ?></label>
                             <input type="number" min="0" step="1" name="fields[${idx}][area_acre]" class="form-control area-part-input" value="0">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group mb-2">
-                            <label class="form-label small">{{ __('Kanal') }}</label>
+                            <label class="form-label small"><?php echo e(__('Kanal')); ?></label>
                             <input type="number" min="0" max="7" step="1" name="fields[${idx}][area_kanal]" class="form-control area-part-input" value="0">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group mb-2">
-                            <label class="form-label small">{{ __('Marla') }}</label>
+                            <label class="form-label small"><?php echo e(__('Marla')); ?></label>
                             <input type="number" min="0" max="19" step="1" name="fields[${idx}][area_marla]" class="form-control area-part-input" value="0">
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group mb-2">
-                            <label class="form-label small">{{ __('Total (in Marla)') }}</label>
+                            <label class="form-label small"><?php echo e(__('Total (in Marla)')); ?></label>
                             <input type="text" class="form-control bg-light total-marla-display" readonly value="0">
                             <input type="hidden" name="fields[${idx}][total_marla]" class="total-marla-input" value="0">
                         </div>
@@ -686,7 +694,7 @@
             var row = btn.closest('.field-row');
             activeFieldIndex = parseInt(row.getAttribute('data-index'));
             document.getElementById('map-instruction').innerText =
-                `{{ __('Now click on the map to set the location for Field #') }}${activeFieldIndex + 1}`;
+                `<?php echo e(__('Now click on the map to set the location for Field #')); ?>${activeFieldIndex + 1}`;
         }
 
         function setRowPin(idx, lat, lng) {
@@ -706,7 +714,7 @@
                         draggable: true
                     })
                     .addTo(map)
-                    .bindTooltip('{{ __('Field') }} #' + (idx + 1), {
+                    .bindTooltip('<?php echo e(__('Field')); ?> #' + (idx + 1), {
                         permanent: true,
                         direction: 'top'
                     });
@@ -720,8 +728,8 @@
         }
 
         (function() {
-            defaultLat = {{ $mouza->latitude ?? 31.5204 }};
-            defaultLng = {{ $mouza->longitude ?? 74.3587 }};
+            defaultLat = <?php echo e($mouza->latitude ?? 31.5204); ?>;
+            defaultLng = <?php echo e($mouza->longitude ?? 74.3587); ?>;
 
             map = L.map('field-map-picker').setView([defaultLat, defaultLng], 15);
 
@@ -742,4 +750,6 @@
             updateRemoveButtons();
         })();
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/realEstate/plot/create.blade.php ENDPATH**/ ?>

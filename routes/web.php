@@ -1057,7 +1057,8 @@ Route::prefix('plot')->name('plot.')->group(function () {
 
     // ⬇️ YE {id} SE UPAR AANI CHAHIYE
     Route::get('/khasras-by-kiwat/{kiwat_id}', [PlotController::class, 'khasrasByKiwat'])->name('khasras.byKiwat');
-
+    Route::get('/{id}/sell', [PlotController::class, 'sell'])->name('sell');
+    Route::post('/{id}/sell', [PlotController::class, 'sellStore'])->name('sell.store');
     // {id} wali sabse neeche
     Route::get('/{id}', [PlotController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [PlotController::class, 'edit'])->name('edit');

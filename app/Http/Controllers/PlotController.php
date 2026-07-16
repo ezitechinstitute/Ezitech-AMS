@@ -69,7 +69,7 @@ class PlotController extends Controller
             'kiwat_id'       => 'required|exists:kiwats,id',
             'intiqal_no'     => 'nullable|string|max:255',
             'amount'         => 'required|numeric',
-            'purchaser_name' => 'required|string|max:255',
+            'purchaser_name' => 'nullable|string|max:255',
             'khasra_id' => 'nullable|exists:real_estate_fields,id',
 
             'fields'                    => 'required|array|min:1',
@@ -114,7 +114,7 @@ class PlotController extends Controller
                 'area_marla'            => $fieldData['area_marla'] ?? 0,
 
                 'amount'                => $request->amount,
-                'status'                => $fieldData['status'] ?? 'available',
+                'status'                => 'available',
                 'latitude'              => $fieldData['latitude'] ?? null,
                 'longitude'             => $fieldData['longitude'] ?? null,
 
@@ -461,5 +461,86 @@ class PlotController extends Controller
         });
 
         return response()->json($result);
+    }
+    public function sell($id)
+    {
+        $plot = Plot::where('created_by', Auth::user()->creatorId())
+            ->where('status', 'available')
+            ->findOrFail($id);
+        $bankAccounts = BankAccount::where('created_by', Auth::user()->creatorId())->get();
+        return view('realEstate.plot.sell', compact('plot', 'bankAccounts'));
+    }
+
+
+    public function sellStore(Request $request, $id)
+    {
+        $request->validate([
+            'purchaser_name' => 'required|string|max:255',
+        ]);
+
+        $plot = Plot::where('created_by', Auth::user()->creatorId())
+            ->where('status', 'available')
+            ->findOrFail($id);
+
+        $plot->update([
+            'purchaser_name'        => $request->purchaser_name,
+            'purchaser_cnic'        => $request->purchaser_cnic,
+            'purchaser_phone'       => $request->purchaser_phone,
+            'purchaser_address'     => $request->purchaser_address,
+            'purchaser_father_name' => $request->purchaser_father_name,
+            'agent_name'            => $request->agent_name,
+            'agent_cnic'            => $request->agent_cnic,
+            'agent_phone'           => $request->agent_phone,
+            'agent_address'         => $request->agent_address,
+            'agent_commission'      => $request->agent_commission ?? 0,
+            'patwari_total'         => $request->patwari_total ?? 0,
+            'bank_account_id'       => $request->bank_account_id,
+            'notes'                 => $request->notes,
+            'status'                => 'sold',
+        ]);
+
+        // Patwari Breakdown
+        if ($request->patwari_person && is_array($request->patwari_person)) {
+            foreach ($request->patwari_person as $i => $person) {
+                if (!empty($person)) {
+                    PatwariExpense::create([
+                        'model_type'  => 'plot',
+                        'model_id'    => $plot->id,
+                        'person_name' => $person,
+                        'amount'      => $request->patwari_amount[$i] ?? 0,
+                        'note'        => $request->patwari_note[$i] ?? null,
+                        'created_by'  => Auth::user()->creatorId(),
+                    ]);
+                }
+            }
+        }
+
+        // Documents
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $i => $file) {
+                $path = $file->store('real-estate/documents', 'public');
+                RealEstateDocument::create([
+                    'model_type'    => 'plot',
+                    'model_id'      => $plot->id,
+                    'document_name' => $request->document_names[$i] ?? $file->getClientOriginalName(),
+                    'document_path' => $path,
+                    'document_type' => $request->document_types[$i] ?? null,
+                    'created_by'    => Auth::user()->creatorId(),
+                ]);
+            }
+        }
+
+        // Transaction record
+        $this->recordPlotTransaction(
+            $plot,
+            $request->bank_account_id,
+            (float) $plot->amount,
+            'credit',
+            'Plot Sale',
+            'Plot sale - Field #' . $plot->field_number . ' to ' . $plot->purchaser_name
+        );
+
+        return redirect()->route('plot.show', $id)
+            ->with('success', __('Plot sold successfully!'));
     }
 }

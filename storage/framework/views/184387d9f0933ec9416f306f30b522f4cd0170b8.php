@@ -1,23 +1,25 @@
-@extends('layouts.admin')
-@section('page-title')
-    {{ __('Edit Plot') }} - {{ $plot->field_number }}
-@endsection
-@section('breadcrumb')
+
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Edit Plot')); ?> - <?php echo e($plot->field_number); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('breadcrumb'); ?>
     <li class="breadcrumb-item">
-        <a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
+        <a href="<?php echo e(route('dashboard')); ?>"><?php echo e(__('Dashboard')); ?></a>
     </li>
-    <li class="breadcrumb-item"><a href="{{ route('plot.index') }}">{{ __('Plots') }}</a></li>
-    <li class="breadcrumb-item">{{ __('Edit') }}</li>
-@endsection
-@section('action-btn')
+    <li class="breadcrumb-item"><a href="<?php echo e(route('plot.index')); ?>"><?php echo e(__('Plots')); ?></a></li>
+    <li class="breadcrumb-item"><?php echo e(__('Edit')); ?></li>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('action-btn'); ?>
     <div class="float-end">
-        <a href="{{ route('plot.show', $plot->id) }}" class="btn btn-sm btn-secondary">
-            <i class="ti ti-arrow-left"></i> {{ __('Back') }}
+        <a href="<?php echo e(route('plot.show', $plot->id)); ?>" class="btn btn-sm btn-secondary">
+            <i class="ti ti-arrow-left"></i> <?php echo e(__('Back')); ?>
+
         </a>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('css-page')
+<?php $__env->startPush('css-page'); ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -27,163 +29,165 @@
             border: 1px solid #ddd;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>{{ __('Edit Plot') }}</h5>
+                    <h5><?php echo e(__('Edit Plot')); ?></h5>
                 </div>
                 <div class="card-body">
-                    @if ($errors->any())
+                    <?php if($errors->any()): ?>
                         <div class="alert alert-danger">
                             <ul class="mb-0">
-                                @foreach ($errors->all() as $e)
-                                    <li>{{ $e }}</li>
-                                @endforeach
+                                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li><?php echo e($e); ?></li>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ul>
                         </div>
-                    @endif
+                    <?php endif; ?>
 
-                    <form action="{{ route('plot.update', $plot->id) }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('PUT')
+                    <form action="<?php echo e(route('plot.update', $plot->id)); ?>" method="POST" enctype="multipart/form-data">
+                        <?php echo csrf_field(); ?>
+                        <?php echo method_field('PUT'); ?>
 
-                        {{-- Mouza aur Khewat side by side --}}
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Mouza (Area)') }} <span
+                                    <label class="form-label"><?php echo e(__('Mouza (Area)')); ?> <span
                                             class="text-danger">*</span></label>
                                     <select name="mouza_id" id="mouza_id" class="form-control" required>
                                         <option value="">-- Select Mouza --</option>
-                                        @foreach ($mouzas as $mouza)
-                                            <option value="{{ $mouza->id }}"
-                                                {{ old('mouza_id', $plot->mouza_id) == $mouza->id ? 'selected' : '' }}>
-                                                {{ $mouza->name }}
+                                        <?php $__currentLoopData = $mouzas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $mouza): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($mouza->id); ?>"
+                                                <?php echo e(old('mouza_id', $plot->mouza_id) == $mouza->id ? 'selected' : ''); ?>>
+                                                <?php echo e($mouza->name); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Khewat') }} <span
+                                    <label class="form-label"><?php echo e(__('Khewat')); ?> <span
                                             class="text-danger">*</span></label>
                                     <select name="kiwat_id" id="kiwat_id" class="form-control" required>
                                         <option value="">-- Select Khewat --</option>
-                                        @foreach ($kiwats as $kiwat)
-                                            <option value="{{ $kiwat->id }}"
-                                                {{ old('kiwat_id', $plot->kiwat_id) == $kiwat->id ? 'selected' : '' }}>
-                                                {{ $kiwat->kiwat_number }}
+                                        <?php $__currentLoopData = $kiwats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $kiwat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($kiwat->id); ?>"
+                                                <?php echo e(old('kiwat_id', $plot->kiwat_id) == $kiwat->id ? 'selected' : ''); ?>>
+                                                <?php echo e($kiwat->kiwat_number); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        {{-- Plot Info --}}
+                        
 
-                        <h6 class="text-primary mb-3">{{ __('Plot Information') }}</h6>
+                        <h6 class="text-primary mb-3"><?php echo e(__('Plot Information')); ?></h6>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Field Number') }} <span
+                                    <label class="form-label"><?php echo e(__('Field Number')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="field_number" class="form-control" required
-                                        value="{{ old('field_number', $plot->field_number) }}">
+                                        value="<?php echo e(old('field_number', $plot->field_number)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Intiqal No.') }}</label>
+                                    <label class="form-label"><?php echo e(__('Intiqal No.')); ?></label>
                                     <input type="text" name="intiqal_no" class="form-control"
-                                        value="{{ old('intiqal_no', $plot->intiqal_no) }}">
+                                        value="<?php echo e(old('intiqal_no', $plot->intiqal_no)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Status') }}</label>
+                                    <label class="form-label"><?php echo e(__('Status')); ?></label>
                                     <select name="status" class="form-select">
                                         <option value="available"
-                                            {{ old('status', $plot->status) == 'available' ? 'selected' : '' }}>
-                                            {{ __('Available') }}</option>
+                                            <?php echo e(old('status', $plot->status) == 'available' ? 'selected' : ''); ?>>
+                                            <?php echo e(__('Available')); ?></option>
                                         <option value="reserved"
-                                            {{ old('status', $plot->status) == 'reserved' ? 'selected' : '' }}>
-                                            {{ __('Reserved') }}</option>
+                                            <?php echo e(old('status', $plot->status) == 'reserved' ? 'selected' : ''); ?>>
+                                            <?php echo e(__('Reserved')); ?></option>
                                         <option value="sold"
-                                            {{ old('status', $plot->status) == 'sold' ? 'selected' : '' }}>
-                                            {{ __('Sold') }}</option>
+                                            <?php echo e(old('status', $plot->status) == 'sold' ? 'selected' : ''); ?>>
+                                            <?php echo e(__('Sold')); ?></option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Amount (PKR)') }} <span
+                                    <label class="form-label"><?php echo e(__('Amount (PKR)')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="amount" class="form-control" required
-                                        value="{{ old('amount', $plot->amount) }}">
+                                        value="<?php echo e(old('amount', $plot->amount)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Latitude') }}</label>
+                                    <label class="form-label"><?php echo e(__('Latitude')); ?></label>
                                     <input type="text" name="latitude" id="field_lat" class="form-control"
-                                        value="{{ old('latitude', $plot->latitude) }}" placeholder="For map pin" readonly>
+                                        value="<?php echo e(old('latitude', $plot->latitude)); ?>" placeholder="For map pin" readonly>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Longitude') }}</label>
+                                    <label class="form-label"><?php echo e(__('Longitude')); ?></label>
                                     <input type="text" name="longitude" id="field_lng" class="form-control"
-                                        value="{{ old('longitude', $plot->longitude) }}" placeholder="For map pin"
+                                        value="<?php echo e(old('longitude', $plot->longitude)); ?>" placeholder="For map pin"
                                         readonly>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- ======= Land Area (Acre / Kanal / Marla breakdown) ======= --}}
+                        
                         <div class="row">
                             <div class="col-12">
                                 <hr class="my-2">
-                                <label class="form-label mb-1"><strong>{{ __('Land Area') }}</strong> <span
+                                <label class="form-label mb-1"><strong><?php echo e(__('Land Area')); ?></strong> <span
                                         class="text-danger">*</span>
-                                    <small class="text-muted">({{ __('enter in any combination') }})</small>
+                                    <small class="text-muted">(<?php echo e(__('enter in any combination')); ?>)</small>
                                 </label>
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group mb-3">
-                                    <label class="form-label small">{{ __('Acre') }}</label>
+                                    <label class="form-label small"><?php echo e(__('Acre')); ?></label>
                                     <input type="number" min="0" step="1" name="area_acre" id="area_acre"
                                         class="form-control area-part-input"
-                                        value="{{ old('area_acre', $plot->area_acre ?? 0) }}">
+                                        value="<?php echo e(old('area_acre', $plot->area_acre ?? 0)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group mb-3">
-                                    <label class="form-label small">{{ __('Kanal') }}</label>
+                                    <label class="form-label small"><?php echo e(__('Kanal')); ?></label>
                                     <input type="number" min="0" max="7" step="1"
                                         name="area_kanal" id="area_kanal" class="form-control area-part-input"
-                                        value="{{ old('area_kanal', $plot->area_kanal ?? 0) }}">
+                                        value="<?php echo e(old('area_kanal', $plot->area_kanal ?? 0)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group mb-3">
-                                    <label class="form-label small">{{ __('Marla') }}</label>
+                                    <label class="form-label small"><?php echo e(__('Marla')); ?></label>
                                     <input type="number" min="0" max="19" step="1"
                                         name="area_marla" id="area_marla" class="form-control area-part-input"
-                                        value="{{ old('area_marla', $plot->area_marla ?? 0) }}">
+                                        value="<?php echo e(old('area_marla', $plot->area_marla ?? 0)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label small">{{ __('Total (in Marla)') }}</label>
+                                    <label class="form-label small"><?php echo e(__('Total (in Marla)')); ?></label>
                                     <input type="text" id="total_marla_display" class="form-control bg-light" readonly
-                                        value="{{ old('area_quantity', $plot->area_quantity) }}">
+                                        value="<?php echo e(old('area_quantity', $plot->area_quantity)); ?>">
                                     <input type="hidden" name="area_quantity" id="area_quantity"
-                                        value="{{ old('area_quantity', $plot->area_quantity) }}">
+                                        value="<?php echo e(old('area_quantity', $plot->area_quantity)); ?>">
                                     <input type="hidden" name="area_unit" value="Marla">
                                 </div>
                             </div>
@@ -191,153 +195,155 @@
 
                         <div class="row">
                             <div class="col-12 mb-3">
-                                <label class="form-label">{{ __('Field Location on Map') }}</label>
+                                <label class="form-label"><?php echo e(__('Field Location on Map')); ?></label>
                                 <div id="field-map-picker"></div>
-                                <small class="text-muted">{{ __('Click on map or drag pin to update location') }}</small>
+                                <small class="text-muted"><?php echo e(__('Click on map or drag pin to update location')); ?></small>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Bank Account') }}</label>
+                                    <label class="form-label"><?php echo e(__('Bank Account')); ?></label>
                                     <select name="bank_account_id" class="form-select">
-                                        <option value="">{{ __('-- Select --') }}</option>
-                                        @foreach ($bankAccounts as $bank)
-                                            <option value="{{ $bank->id }}"
-                                                {{ old('bank_account_id', $plot->bank_account_id) == $bank->id ? 'selected' : '' }}>
-                                                {{ $bank->bank_name }} - {{ $bank->account_number }}
+                                        <option value=""><?php echo e(__('-- Select --')); ?></option>
+                                        <?php $__currentLoopData = $bankAccounts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bank): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($bank->id); ?>"
+                                                <?php echo e(old('bank_account_id', $plot->bank_account_id) == $bank->id ? 'selected' : ''); ?>>
+                                                <?php echo e($bank->bank_name); ?> - <?php echo e($bank->account_number); ?>
+
                                             </option>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Notes') }}</label>
-                                    <textarea name="notes" class="form-control" rows="2">{{ old('notes', $plot->notes) }}</textarea>
+                                    <label class="form-label"><?php echo e(__('Notes')); ?></label>
+                                    <textarea name="notes" class="form-control" rows="2"><?php echo e(old('notes', $plot->notes)); ?></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <hr>
 
-                        {{-- Purchaser Details --}}
-                        <h6 class="text-info mb-3">{{ __('Purchaser Details') }}</h6>
+                        
+                        <h6 class="text-info mb-3"><?php echo e(__('Purchaser Details')); ?></h6>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Name') }} <span
+                                    <label class="form-label"><?php echo e(__('Name')); ?> <span
                                             class="text-danger">*</span></label>
                                     <input type="text" name="purchaser_name" class="form-control" required
-                                        value="{{ old('purchaser_name', $plot->purchaser_name) }}">
+                                        value="<?php echo e(old('purchaser_name', $plot->purchaser_name)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Father Name') }}</label>
+                                    <label class="form-label"><?php echo e(__('Father Name')); ?></label>
                                     <input type="text" name="purchaser_father_name" class="form-control"
-                                        value="{{ old('purchaser_father_name', $plot->purchaser_father_name) }}">
+                                        value="<?php echo e(old('purchaser_father_name', $plot->purchaser_father_name)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('CNIC') }}</label>
+                                    <label class="form-label"><?php echo e(__('CNIC')); ?></label>
                                     <input type="text" name="purchaser_cnic" class="form-control"
-                                        value="{{ old('purchaser_cnic', $plot->purchaser_cnic) }}"
+                                        value="<?php echo e(old('purchaser_cnic', $plot->purchaser_cnic)); ?>"
                                         placeholder="XXXXX-XXXXXXX-X">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Phone') }}</label>
+                                    <label class="form-label"><?php echo e(__('Phone')); ?></label>
                                     <input type="text" name="purchaser_phone" class="form-control"
-                                        value="{{ old('purchaser_phone', $plot->purchaser_phone) }}">
+                                        value="<?php echo e(old('purchaser_phone', $plot->purchaser_phone)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-8">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Address') }}</label>
+                                    <label class="form-label"><?php echo e(__('Address')); ?></label>
                                     <input type="text" name="purchaser_address" class="form-control"
-                                        value="{{ old('purchaser_address', $plot->purchaser_address) }}">
+                                        value="<?php echo e(old('purchaser_address', $plot->purchaser_address)); ?>">
                                 </div>
                             </div>
                         </div>
 
                         <hr>
 
-                        {{-- Commission Agent --}}
-                        <h6 class="text-warning mb-3">{{ __('Commission Agent') }}</h6>
+                        
+                        <h6 class="text-warning mb-3"><?php echo e(__('Commission Agent')); ?></h6>
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Name') }}</label>
+                                    <label class="form-label"><?php echo e(__('Name')); ?></label>
                                     <input type="text" name="agent_name" class="form-control"
-                                        value="{{ old('agent_name', $plot->agent_name) }}">
+                                        value="<?php echo e(old('agent_name', $plot->agent_name)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('CNIC') }}</label>
+                                    <label class="form-label"><?php echo e(__('CNIC')); ?></label>
                                     <input type="text" name="agent_cnic" class="form-control"
-                                        value="{{ old('agent_cnic', $plot->agent_cnic) }}">
+                                        value="<?php echo e(old('agent_cnic', $plot->agent_cnic)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Phone') }}</label>
+                                    <label class="form-label"><?php echo e(__('Phone')); ?></label>
                                     <input type="text" name="agent_phone" class="form-control"
-                                        value="{{ old('agent_phone', $plot->agent_phone) }}">
+                                        value="<?php echo e(old('agent_phone', $plot->agent_phone)); ?>">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Commission (PKR)') }}</label>
+                                    <label class="form-label"><?php echo e(__('Commission (PKR)')); ?></label>
                                     <input type="number" step="0.01" name="agent_commission" class="form-control"
-                                        value="{{ old('agent_commission', $plot->agent_commission) }}">
+                                        value="<?php echo e(old('agent_commission', $plot->agent_commission)); ?>">
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Address') }}</label>
+                                    <label class="form-label"><?php echo e(__('Address')); ?></label>
                                     <input type="text" name="agent_address" class="form-control"
-                                        value="{{ old('agent_address', $plot->agent_address) }}">
+                                        value="<?php echo e(old('agent_address', $plot->agent_address)); ?>">
                                 </div>
                             </div>
                         </div>
 
                         <hr>
 
-                        {{-- Patwari Expense Breakdown --}}
+                        
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="text-secondary mb-0">{{ __('Patwari Expense Breakdown') }}</h6>
+                            <h6 class="text-secondary mb-0"><?php echo e(__('Patwari Expense Breakdown')); ?></h6>
                             <button type="button" id="add-patwari-row" class="btn btn-sm btn-outline-secondary">
-                                <i class="ti ti-plus"></i> {{ __('Add Row') }}
+                                <i class="ti ti-plus"></i> <?php echo e(__('Add Row')); ?>
+
                             </button>
                         </div>
                         <div class="table-responsive mb-2">
                             <table class="table table-sm table-bordered" id="patwari-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>{{ __('Person') }}</th>
-                                        <th>{{ __('Amount') }}</th>
-                                        <th>{{ __('Note') }}</th>
+                                        <th><?php echo e(__('Person')); ?></th>
+                                        <th><?php echo e(__('Amount')); ?></th>
+                                        <th><?php echo e(__('Note')); ?></th>
                                         <th style="width:50px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($plot->patwariExpenses as $pe)
+                                    <?php $__empty_1 = true; $__currentLoopData = $plot->patwariExpenses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pe): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                         <tr>
                                             <td><input type="text" name="patwari_person[]"
-                                                    class="form-control form-control-sm" value="{{ $pe->person_name }}">
+                                                    class="form-control form-control-sm" value="<?php echo e($pe->person_name); ?>">
                                             </td>
                                             <td><input type="number" step="0.01" name="patwari_amount[]"
-                                                    class="form-control form-control-sm" value="{{ $pe->amount }}">
+                                                    class="form-control form-control-sm" value="<?php echo e($pe->amount); ?>">
                                             </td>
                                             <td><input type="text" name="patwari_note[]"
-                                                    class="form-control form-control-sm" value="{{ $pe->note }}">
+                                                    class="form-control form-control-sm" value="<?php echo e($pe->note); ?>">
                                             </td>
                                             <td><button type="button" class="btn btn-sm btn-danger remove-row"><i
                                                         class="ti ti-trash"></i></button></td>
                                         </tr>
-                                    @empty
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                         <tr>
                                             <td><input type="text" name="patwari_person[]"
                                                     class="form-control form-control-sm"></td>
@@ -348,39 +354,39 @@
                                             <td><button type="button" class="btn btn-sm btn-danger remove-row"><i
                                                         class="ti ti-trash"></i></button></td>
                                         </tr>
-                                    @endforelse
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label class="form-label">{{ __('Patwari Total (PKR)') }}</label>
+                                    <label class="form-label"><?php echo e(__('Patwari Total (PKR)')); ?></label>
                                     <input type="number" step="0.01" name="patwari_total" id="patwari_total"
-                                        class="form-control" value="{{ old('patwari_total', $plot->patwari_total) }}">
+                                        class="form-control" value="<?php echo e(old('patwari_total', $plot->patwari_total)); ?>">
                                     <small
-                                        class="text-muted">{{ __('Auto-sums from rows above; you can override manually.') }}</small>
+                                        class="text-muted"><?php echo e(__('Auto-sums from rows above; you can override manually.')); ?></small>
                                 </div>
                             </div>
                         </div>
 
                         <hr>
 
-                        {{-- Existing Documents --}}
-                        <h6 class="mb-3" style="color:#6f42c1;">{{ __('Existing Documents') }}</h6>
-                        @if ($plot->documents->count() > 0)
+                        
+                        <h6 class="mb-3" style="color:#6f42c1;"><?php echo e(__('Existing Documents')); ?></h6>
+                        <?php if($plot->documents->count() > 0): ?>
                             <div class="row mb-3">
-                                @foreach ($plot->documents as $doc)
+                                <?php $__currentLoopData = $plot->documents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $doc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="col-md-3 mb-3">
                                         <div class="card border">
                                             <div class="card-body text-center p-3">
                                                 <i class="ti ti-file" style="font-size:2rem; color:#6f42c1;"></i>
-                                                <p class="mb-1 mt-2"><strong>{{ $doc->document_name }}</strong></p>
-                                                <small class="text-muted">{{ $doc->document_type ?? 'Document' }}</small>
+                                                <p class="mb-1 mt-2"><strong><?php echo e($doc->document_name); ?></strong></p>
+                                                <small class="text-muted"><?php echo e($doc->document_type ?? 'Document'); ?></small>
                                                 <div class="mt-2">
-                                                    <a href="{{ Storage::url($doc->document_path) }}" target="_blank"
+                                                    <a href="<?php echo e(Storage::url($doc->document_path)); ?>" target="_blank"
                                                         class="btn btn-sm btn-info"><i class="ti ti-download"></i></a>
-                                                    <a href="{{ route('real.estate.document.delete', $doc->id) }}"
+                                                    <a href="<?php echo e(route('real.estate.document.delete', $doc->id)); ?>"
                                                         class="btn btn-sm btn-danger"
                                                         onclick="return confirm('Delete?')"><i
                                                             class="ti ti-trash"></i></a>
@@ -388,21 +394,21 @@
                                             </div>
                                         </div>
                                     </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
-                        @else
-                            <p class="text-muted">{{ __('No documents uploaded yet.') }}</p>
-                        @endif
+                        <?php else: ?>
+                            <p class="text-muted"><?php echo e(__('No documents uploaded yet.')); ?></p>
+                        <?php endif; ?>
 
-                        {{-- Upload New Documents --}}
-                        <h6 class="mb-3" style="color:#6f42c1;">{{ __('Upload New Documents') }}</h6>
+                        
+                        <h6 class="mb-3" style="color:#6f42c1;"><?php echo e(__('Upload New Documents')); ?></h6>
                         <div class="table-responsive mb-3">
                             <table class="table table-sm table-bordered" id="documents-table">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>{{ __('File') }}</th>
-                                        <th>{{ __('Name') }}</th>
-                                        <th>{{ __('Type') }}</th>
+                                        <th><?php echo e(__('File')); ?></th>
+                                        <th><?php echo e(__('Name')); ?></th>
+                                        <th><?php echo e(__('Type')); ?></th>
                                         <th style="width:50px;"></th>
                                     </tr>
                                 </thead>
@@ -423,22 +429,23 @@
                             </table>
                         </div>
                         <button type="button" id="add-document-row" class="btn btn-sm btn-outline-secondary mb-4">
-                            <i class="ti ti-plus"></i> {{ __('Add Document Row') }}
+                            <i class="ti ti-plus"></i> <?php echo e(__('Add Document Row')); ?>
+
                         </button>
 
                         <div class="text-end">
-                            <a href="{{ route('plot.show', $plot->id) }}"
-                                class="btn btn-secondary">{{ __('Cancel') }}</a>
-                            <button type="submit" class="btn btn-primary">{{ __('Update Plot') }}</button>
+                            <a href="<?php echo e(route('plot.show', $plot->id)); ?>"
+                                class="btn btn-secondary"><?php echo e(__('Cancel')); ?></a>
+                            <button type="submit" class="btn btn-primary"><?php echo e(__('Update Plot')); ?></button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('script-page')
+<?php $__env->startPush('script-page'); ?>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
@@ -544,9 +551,9 @@
             var lngInput = document.getElementById('field_lng');
 
             var defaultLat = parseFloat(latInput.value) ||
-                {{ $plot->mouza->latitude ?? 31.5204 }};
+                <?php echo e($plot->mouza->latitude ?? 31.5204); ?>;
             var defaultLng = parseFloat(lngInput.value) ||
-                {{ $plot->mouza->longitude ?? 74.3587 }};
+                <?php echo e($plot->mouza->longitude ?? 74.3587); ?>;
             var hasInitial = !!(latInput.value && lngInput.value);
 
             var map = L.map('field-map-picker').setView([defaultLat, defaultLng], hasInitial ? 17 : 15);
@@ -576,4 +583,6 @@
             });
         })();
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/realEstate/plot/edit.blade.php ENDPATH**/ ?>

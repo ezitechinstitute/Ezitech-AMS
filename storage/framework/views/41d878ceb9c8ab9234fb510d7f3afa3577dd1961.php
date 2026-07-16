@@ -1,21 +1,23 @@
-@extends('layouts.admin')
-@section('page-title')
-    {{ __('Plots') }} - {{ $mouza->name }}
-@endsection
-@section('breadcrumb')
-    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('plot.inventory') }}">{{ __('Plot Inventory') }}</a></li>
-    <li class="breadcrumb-item">{{ $mouza->name }}</li>
-@endsection
-@section('action-btn')
+
+<?php $__env->startSection('page-title'); ?>
+    <?php echo e(__('Plots')); ?> - <?php echo e($mouza->name); ?>
+
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('breadcrumb'); ?>
+    <li class="breadcrumb-item"><a href="<?php echo e(route('dashboard')); ?>"><?php echo e(__('Dashboard')); ?></a></li>
+    <li class="breadcrumb-item"><a href="<?php echo e(route('plot.inventory')); ?>"><?php echo e(__('Plot Inventory')); ?></a></li>
+    <li class="breadcrumb-item"><?php echo e($mouza->name); ?></li>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('action-btn'); ?>
     <div class="float-end">
-        <a href="{{ route('plot.inventory') }}" class="btn btn-sm btn-secondary">
-            <i class="ti ti-arrow-left"></i> {{ __('Back to Areas') }}
+        <a href="<?php echo e(route('plot.inventory')); ?>" class="btn btn-sm btn-secondary">
+            <i class="ti ti-arrow-left"></i> <?php echo e(__('Back to Areas')); ?>
+
         </a>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('css-page')
+<?php $__env->startPush('css-page'); ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
@@ -28,17 +30,18 @@
             background-color: #fff3cd !important;
         }
     </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="row">
 
-        {{-- Map --}}
+        
         <div class="col-12 mb-3">
             <div class="card">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="ti ti-map-pin"></i>
-                        {{ __('Plot Map') }} - {{ $mouza->name }}
+                        <?php echo e(__('Plot Map')); ?> - <?php echo e($mouza->name); ?>
+
                     </h5>
                 </div>
                 <div class="card-body p-0">
@@ -47,30 +50,30 @@
             </div>
         </div>
 
-        {{-- Search + Table --}}
+        
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <div class="mb-3">
                         <input type="text" id="plot-search" class="form-control"
-                            placeholder="{{ __('Search by Plot No., Purchaser, or Intiqal No...') }}">
+                            placeholder="<?php echo e(__('Search by Plot No., Purchaser, or Intiqal No...')); ?>">
                     </div>
                     <div class="table-responsive">
                         <table class="table" id="plot-table">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Plot No.') }}</th>
-                                    <th>{{ __('Kiwat') }}</th>
-                                    <th>{{ __('Intiqal No.') }}</th>
-                                    <th>{{ __('Purchaser') }}</th>
-                                    <th>{{ __('Area') }}</th>
-                                    <th>{{ __('Amount') }}</th>
-                                    <th>{{ __('Status') }}</th>
-                                    <th>{{ __('Action') }}</th>
+                                    <th><?php echo e(__('Plot No.')); ?></th>
+                                    <th><?php echo e(__('Kiwat')); ?></th>
+                                    <th><?php echo e(__('Intiqal No.')); ?></th>
+                                    <th><?php echo e(__('Purchaser')); ?></th>
+                                    <th><?php echo e(__('Area')); ?></th>
+                                    <th><?php echo e(__('Amount')); ?></th>
+                                    <th><?php echo e(__('Status')); ?></th>
+                                    <th><?php echo e(__('Action')); ?></th>
                                 </tr>
                             </thead>
                             <tbody id="plot-body">
-                                {{-- Filled by JS --}}
+                                
                             </tbody>
                         </table>
                     </div>
@@ -79,17 +82,17 @@
         </div>
 
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('script-page')
+<?php $__env->startPush('script-page'); ?>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         (function() {
-            var mapPlots = @json($mapPlots);
+            var mapPlots = <?php echo json_encode($mapPlots, 15, 512) ?>;
 
-            var centerLat = {{ $mouza->latitude ?? 31.5204 }};
-            var centerLng = {{ $mouza->longitude ?? 74.3587 }};
+            var centerLat = <?php echo e($mouza->latitude ?? 31.5204); ?>;
+            var centerLng = <?php echo e($mouza->longitude ?? 74.3587); ?>;
 
             var map = L.map('plot-map').setView([centerLat, centerLng], 14);
 
@@ -99,7 +102,7 @@
             }).addTo(map);
 
             L.marker([centerLat, centerLng]).addTo(map)
-                .bindPopup('<strong>{{ $mouza->name }}</strong>');
+                .bindPopup('<strong><?php echo e($mouza->name); ?></strong>');
 
             // Keep circle references by plot id so "View" can open its popup
             var circleById = {};
@@ -180,7 +183,7 @@
             }
 
             function fetchPlots(q) {
-                fetch("{{ route('plot.inventory.data', $mouza->id) }}?q=" + encodeURIComponent(q))
+                fetch("<?php echo e(route('plot.inventory.data', $mouza->id)); ?>?q=" + encodeURIComponent(q))
                     .then(function(res) {
                         return res.json();
                     })
@@ -225,4 +228,6 @@
             });
         })();
     </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('layouts.admin', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH E:\2026\Ezitech-AMS-main\resources\views/realEstate/plot/inventoryArea.blade.php ENDPATH**/ ?>
